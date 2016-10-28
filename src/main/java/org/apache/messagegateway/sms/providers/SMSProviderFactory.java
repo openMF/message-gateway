@@ -81,7 +81,7 @@ public class SMSProviderFactory implements ApplicationContextAware {
 				if (bridge == null) {
 					throw new SMSBridgeNotFoundException(message.getProviderId());
 				}
-				if (bridge.getProviderName().contains("Twilio")) {
+				if (bridge.getProviderName().contains("Twilio") || bridge.getProviderName().contains("twilio")) {
 					provider = this.applicationContext.getBean(TwilioMessageProvider.class);
 				} else if (bridge.getProviderName().contains("InfoBip")) {
 					provider = this.applicationContext.getBean(InfoBipMessageProvider.class);

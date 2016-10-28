@@ -50,12 +50,6 @@ public class TwilioMessageProvider implements SMSProvider {
     	}
     	//Based on message id, register call back. so that we get notification from Twilio about message status
     	String statusCallback = "http://"+hostAddress+":9191/sms/"+message.getId() ;
-    	
-        final List<NameValuePair> messageParams = new ArrayList<NameValuePair>();
-        messageParams.add(new BasicNameValuePair("From", smsBridgeConfig.getPhoneNo()));
-        messageParams.add(new BasicNameValuePair("To", "+" + message.getMobileNumber()));
-        messageParams.add(new BasicNameValuePair("Body", message.getMessage()));
-        messageParams.add(new BasicNameValuePair("action", statusCallback)) ;
         final TwilioRestClient twilioRestClient = this.getRestClient(smsBridgeConfig);
         logger.info("Sending SMS to " + message.getMobileNumber() + " ...");
         MessageCreator creator = new MessageCreator(new PhoneNumber(message.getMobileNumber()), new PhoneNumber(smsBridgeConfig.getPhoneNo()) , message.getMessage() ) ;

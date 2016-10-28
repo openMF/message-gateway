@@ -1,0 +1,4 @@
+jar {
+    baseName = 'mifos-sms-bridge'
+    version = '0.0.1'
+}

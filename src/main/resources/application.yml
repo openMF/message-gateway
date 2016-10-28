@@ -1,0 +1,28 @@
+# server configuration
+server:
+  port: 9191
+
+# endpoint configuration
+endpoints:
+  shutdown:
+    enabled: true
+
+# database configuration
+spring:
+  jpa:
+    show-sql: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+  datasource:
+    url: jdbc:mysql:thin://localhost:3306/messagegateway
+    username: root
+    password: mysql
+    driver-class-name: org.drizzle.jdbc.DrizzleDriver
+
+# message templates
+message:
+  template:
+    createclient: Hello $name, welcome at Mifos X!
+    loanrepayment: Hello $name, repayment for $account received!

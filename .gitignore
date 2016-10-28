@@ -1,12 +1,21 @@
-*.class
+# folders
+bin/
+out/
+build/
+target/
+repos/
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# files
+.classpath
+.project
+.settings
+.gradle
+.idea
 
-# Package Files #
-*.jar
-*.war
-*.ear
+*.log
+*.iml
+*.ims
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+smsmoduledb.*
+
+!gradle/wrapper/gradle-wrapper.jar

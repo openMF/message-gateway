@@ -17,17 +17,17 @@ public class SMSBridgeService {
 	// TODO://Do we need implement ApplicationEventPublisherAware?
 	//private ApplicationEventPublisher applicationEventPublisher;
 
-	private final SMSBridgeRepository smsBridgeConfigRepository;
+	private final SMSBridgeRepository smsBridgeRepository;
 
 	private final SmsBridgeSerializer smsBridgeService ;
 	
 	private final SecurityService securityService ;
 	
 	@Autowired
-	public SMSBridgeService(final SMSBridgeRepository smsBridgeConfigRepository,
+	public SMSBridgeService(final SMSBridgeRepository smsBridgeRepository,
 			final SmsBridgeSerializer smsBridgeService,
 			final SecurityService securityService) {
-		this.smsBridgeConfigRepository = smsBridgeConfigRepository;
+		this.smsBridgeRepository = smsBridgeRepository;
 		this.smsBridgeService = smsBridgeService ;
 		this.securityService = securityService ;
 	}
@@ -40,31 +40,41 @@ public class SMSBridgeService {
 	 */
 
 	public Collection<SMSBridge> retrieveProviderDetails(final String tenantId) {
-		return this.smsBridgeConfigRepository.findByTenantId(tenantId);
+		return this.smsBridgeRepository.findByTenantId(tenantId);
 	}
 
 	@Transactional
-	public Long createSmsBridgeConfig(final SMSBridge smsBridge) {
-		this.smsBridgeService.validateCreate(smsBridge) ;
+	public Long createSmsBridgeConfig(final String json) {
+		SMSBridge smsBridge = this.smsBridgeService.validateCreate(json) ;
 		smsBridge.setSMSBridgeToBridgeConfigs(); 
 		smsBridge.setProviderAppKey(this.securityService.generateApiKey(smsBridge));
 		smsBridge.setCreatedDate(new Date());
-		final SMSBridge newSMSmsBridge = this.smsBridgeConfigRepository.save(smsBridge);
+		final SMSBridge newSMSmsBridge = this.smsBridgeRepository.save(smsBridge);
 		return newSMSmsBridge.getId();
 	}
 
 	@Transactional
 	public void updateSmsBridge(final Long bridgeId, final String json) {
-		final SMSBridge bridge = this.smsBridgeConfigRepository.findOne(bridgeId) ;
+		final SMSBridge bridge = this.smsBridgeRepository.findOne(bridgeId) ;
 		this.smsBridgeService.validateUpdate(json, bridge);
-		this.smsBridgeConfigRepository.save(bridge);
+		this.smsBridgeRepository.save(bridge);
 	}
 	
-	public SMSBridge retrieveProviderDetails(final String tenantId, final Long providerId)
-			throws SMSBridgeNotFoundException {
-		final SMSBridge bridge = this.smsBridgeConfigRepository.findByIdAndTenantId(providerId, tenantId);
+	public Long deleteSmsBridge(final Long bridgeId) throws SMSBridgeNotFoundException{
+		final SMSBridge bridge = this.smsBridgeRepository.findOne(bridgeId) ;
 		if (bridge == null) {
-			throw new SMSBridgeNotFoundException(tenantId, providerId);
+			throw new SMSBridgeNotFoundException(bridgeId);
+		}
+		
+		this.smsBridgeRepository.delete(bridge);
+		return bridgeId ;
+	}
+	
+	public SMSBridge retrieveSmsBridge(final String tenantId, final Long providerId)
+			throws SMSBridgeNotFoundException {
+		final SMSBridge bridge = this.smsBridgeRepository.findByIdAndTenantId(providerId, tenantId);
+		if (bridge == null) {
+			throw new SMSBridgeNotFoundException(providerId);
 		}
 		return bridge;
 	}

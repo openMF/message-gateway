@@ -33,7 +33,7 @@ public class SMSProviderFactory implements ApplicationContextAware {
 		SMSBridge bridge = this.providerDetailsRepository.findByIdAndTenantId(message.getProviderId(),
 				message.getTenantId());
 		if (bridge == null) {
-			throw new SMSBridgeNotFoundException(message.getTenantId(), message.getProviderId());
+			throw new SMSBridgeNotFoundException(message.getProviderId());
 		}
 		if (bridge.getProviderName().contains("Twilio")) {
 			return this.applicationContext.getBean(TwilioMessageProvider.class);
@@ -54,7 +54,7 @@ public class SMSProviderFactory implements ApplicationContextAware {
 		SMSProvider provider = null;
 		try {
 			if (bridge == null) {
-				throw new SMSBridgeNotFoundException(message.getTenantId(), message.getProviderId());
+				throw new SMSBridgeNotFoundException(message.getProviderId());
 			}
 			if (bridge.getProviderName().contains("Twilio")) {
 				provider = this.applicationContext.getBean(TwilioMessageProvider.class);
@@ -79,7 +79,7 @@ public class SMSProviderFactory implements ApplicationContextAware {
 			SMSProvider provider = null;
 			try {
 				if (bridge == null) {
-					throw new SMSBridgeNotFoundException(message.getTenantId(), message.getProviderId());
+					throw new SMSBridgeNotFoundException(message.getProviderId());
 				}
 				if (bridge.getProviderName().contains("Twilio")) {
 					provider = this.applicationContext.getBean(TwilioMessageProvider.class);

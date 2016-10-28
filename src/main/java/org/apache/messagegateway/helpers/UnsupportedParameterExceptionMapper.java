@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class UnsupportedParameterExceptionMapper  {
 
-    public ResponseEntity<ApiGlobalErrorResponse> toResponse(final UnsupportedParameterException exception) {
+    public static ResponseEntity<ApiGlobalErrorResponse> toResponse(final UnsupportedParameterException exception) {
         final List<ApiParameterError> errors = new ArrayList<>();
         for (final String parameterName : exception.getUnsupportedParameters()) {
             final StringBuilder validationErrorCode = new StringBuilder("error.msg.parameter.unsupported");

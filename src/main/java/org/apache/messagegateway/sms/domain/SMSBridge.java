@@ -1,5 +1,6 @@
 package org.apache.messagegateway.sms.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -40,7 +41,7 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	private Date modifiedOnDate;
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "bridge", orphanRemoval = true, fetch = FetchType.EAGER)
-	public Collection<SMSBridgeConfig> bridgeConfigurations;
+	public Collection<SMSBridgeConfig> bridgeConfigurations = new ArrayList<>();
 
 	public SMSBridge() {
 		
@@ -59,10 +60,9 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 		this.providerDescription = providerDescription ;
 	}
 	
-	public SMSBridge(final String tenantId, final String phoneNo, final String providerAppKey, final String providerName, final String providerDescription) {
+	public SMSBridge(final String tenantId, final String phoneNo, final String providerName, final String providerDescription) {
 		this.tenantId = tenantId ;
 		this.phoneNo = phoneNo ;
-		this.providerAppKey = providerAppKey ;
 		this.providerName = providerName ;
 		this.providerDescription = providerDescription ;
 	}

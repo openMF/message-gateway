@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.apache.messagegateway.helpers.ApiGlobalErrorResponse;
 import org.apache.messagegateway.helpers.PlatformApiDataValidationException;
 import org.apache.messagegateway.helpers.PlatformApiDataValidationExceptionMapper;
+import org.apache.messagegateway.helpers.PlatformResourceNotFoundExceptionMapper;
 import org.apache.messagegateway.helpers.UnsupportedParameterException;
 import org.apache.messagegateway.helpers.UnsupportedParameterExceptionMapper;
 import org.apache.messagegateway.sms.domain.SMSBridge;
@@ -32,14 +33,20 @@ public class SmsBridgeApiResource {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
-    public ResponseEntity<Long> createSMSBridgeConfig(@RequestBody final SMSBridge smsBridge) {
-    		 Long bridgeId = this.smsBridgeService.createSmsBridgeConfig(smsBridge) ;
+    public ResponseEntity<Long> createSMSBridgeConfig(@RequestBody final String smsBridgeJson) {
+    		 Long bridgeId = this.smsBridgeService.createSmsBridgeConfig(smsBridgeJson) ;
     		 return new ResponseEntity<>(bridgeId, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/{bridgeId}", method = RequestMethod.PUT, consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<Long>updateSMSBridgeConfig(@PathVariable("bridgeId") final Long bridgeId, @RequestBody final String smsBridge) {
     	this.smsBridgeService.updateSmsBridge(bridgeId, smsBridge);
+        return new ResponseEntity<>(bridgeId, HttpStatus.ACCEPTED);
+    }
+    
+    @RequestMapping(value = "/{bridgeId}", method = RequestMethod.DELETE, consumes = {"application/json"}, produces = {"application/json"})
+    public ResponseEntity<Long>deleteSMSBridgeConfig(@PathVariable("bridgeId") final Long bridgeId) {
+		this.smsBridgeService.deleteSmsBridge(bridgeId);
         return new ResponseEntity<>(bridgeId, HttpStatus.ACCEPTED);
     }
     
@@ -52,22 +59,22 @@ public class SmsBridgeApiResource {
     @RequestMapping(value = "/{tenantId}/{providerId}", method = RequestMethod.GET, consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<SMSBridge> getSMSBridgeConfig(@PathVariable("tenantId") final String tenantId, @PathVariable("providerId") final Long providerId) {
         SMSBridge bridge;
-		try {
-			bridge = this.smsBridgeService.retrieveProviderDetails(tenantId, providerId);
-			return new ResponseEntity<>(bridge, HttpStatus.CREATED);
-		} catch (SMSBridgeNotFoundException e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		bridge = this.smsBridgeService.retrieveSmsBridge(tenantId, providerId);
+		return new ResponseEntity<>(bridge, HttpStatus.CREATED);
     }
     
     @ExceptionHandler({PlatformApiDataValidationException.class})
     public ResponseEntity<ApiGlobalErrorResponse> handlePlatformApiDataValidationException(PlatformApiDataValidationException e) {
-    	return new PlatformApiDataValidationExceptionMapper().toResponse(e) ;
+    	return PlatformApiDataValidationExceptionMapper.toResponse(e) ;
     }
     
     @ExceptionHandler({UnsupportedParameterException.class})
     public ResponseEntity<ApiGlobalErrorResponse> handleUnsupportedParameterException(UnsupportedParameterException e) {
-    	return new UnsupportedParameterExceptionMapper().toResponse(e) ;
+    	return UnsupportedParameterExceptionMapper.toResponse(e) ;
+    }
+    
+    @ExceptionHandler({SMSBridgeNotFoundException.class})
+    public ResponseEntity<ApiGlobalErrorResponse> handleSMSBridgeNotFoundException(SMSBridgeNotFoundException e) {
+    	return PlatformResourceNotFoundExceptionMapper.toResponse(e) ;
     }
 }

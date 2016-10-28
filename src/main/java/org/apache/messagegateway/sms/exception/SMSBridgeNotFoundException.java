@@ -1,8 +1,10 @@
 package org.apache.messagegateway.sms.exception;
 
-public class SMSBridgeNotFoundException extends Exception{
+import org.apache.messagegateway.helpers.AbstractPlatformResourceNotFoundException;
 
-	public SMSBridgeNotFoundException(final String tenantId, final Long providerId) {
-		super("SMSBridge with tenantId:"+tenantId+" and providerId:"+providerId+" Does not exists") ;
-	}
+public class SMSBridgeNotFoundException extends AbstractPlatformResourceNotFoundException{
+
+	public SMSBridgeNotFoundException(final Long providerId) {
+        super("error.msg.smsbrige.id.invalid", "SMSBridge with identifier " + providerId + " does not exist", providerId);
+    }
 }

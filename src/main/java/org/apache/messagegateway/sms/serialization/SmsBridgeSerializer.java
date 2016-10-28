@@ -1,7 +1,6 @@
 package org.apache.messagegateway.sms.serialization;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,19 +30,39 @@ public class SmsBridgeSerializer {
 		this.fromApiJsonHelper = fromApiJsonHelper;
 	}
 
-	public void validateCreate(final SMSBridge bridge) {
+	public SMSBridge validateCreate(final String json) {
+		final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
+		this.fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, SmsConstants.supportedParameters);
+		
 		final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
 		final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors)
 				.resource("smsBridge");
-		final String tenantId = bridge.getTenantId();
+		final JsonElement element = this.fromApiJsonHelper.parse(json);
+		final String tenantId = this.fromApiJsonHelper.extractStringNamed(SmsConstants.tenantId_paramname, element);
 		baseDataValidator.reset().parameter(SmsConstants.tenantId_paramname).value(tenantId).notBlank();
-		final String phoneNo = bridge.getPhoneNo();
-		baseDataValidator.reset().parameter(SmsConstants.phoneNo_paramname).value(phoneNo).notBlank();
-		final String providerName = bridge.getProviderName();
+
+		final String phoneNumber = this.fromApiJsonHelper.extractStringNamed(SmsConstants.phoneNo_paramname, element);
+		baseDataValidator.reset().parameter(SmsConstants.phoneNo_paramname).value(phoneNumber).notBlank();
+		
+		final String providerName = this.fromApiJsonHelper.extractStringNamed(SmsConstants.providername_paramname, element);
 		baseDataValidator.reset().parameter(SmsConstants.providername_paramname).value(providerName).notBlank();
+		 
+		final String providerDescription = this.fromApiJsonHelper.extractStringNamed(SmsConstants.providerdescription_paramname, element);
+		baseDataValidator.reset().parameter(SmsConstants.providerdescription_paramname).value(providerDescription).notBlank();
+		
+		SMSBridge bridge = new SMSBridge(tenantId, phoneNumber, providerName, providerDescription) ;
+		
+		JsonArray configParams = this.fromApiJsonHelper.extractJsonArrayNamed(SmsConstants.bridgeconfigurations_paramname, element);
+		baseDataValidator.reset().parameter(SmsConstants.bridgeconfigurations_paramname).value(configParams).jsonArrayNotEmpty();
+		if (configParams != null && configParams.size() > 0) {
+			assembleBridgeConfigParams(bridge, configParams, baseDataValidator);
+		}
+			 
 		if (!dataValidationErrors.isEmpty()) {
 			throw new PlatformApiDataValidationException(dataValidationErrors);
 		}
+		
+		return bridge ;
 	}
 
 	public void validateUpdate(final String json, final SMSBridge bridge) {
@@ -80,8 +99,10 @@ public class SmsBridgeSerializer {
 		 
 		 if (this.fromApiJsonHelper.parameterExists(SmsConstants.bridgeconfigurations_paramname, element)) {
 			 JsonArray configParams = this.fromApiJsonHelper.extractJsonArrayNamed(SmsConstants.bridgeconfigurations_paramname, element);
-			 baseDataValidator.reset().parameter(SmsConstants.bridgeconfigurations_paramname).value(configParams).arrayNotEmpty();
-			 assembleBridgeConfigParams(bridge, configParams, baseDataValidator) ;
+			 baseDataValidator.reset().parameter(SmsConstants.bridgeconfigurations_paramname).value(configParams).jsonArrayNotEmpty();
+			 if(configParams != null && configParams.size() > 0) {
+				 assembleBridgeConfigParams(bridge, configParams, baseDataValidator) ;	 
+			 }
 		 }
 		 
 		 if (!dataValidationErrors.isEmpty()) {

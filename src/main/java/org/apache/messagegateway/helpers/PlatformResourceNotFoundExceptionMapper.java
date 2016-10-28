@@ -24,19 +24,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 /**
- * An {@link ExceptionMapper} to map {@link PlatformApiDataValidationException}
- * thrown by platform into a HTTP API friendly format.
- * 
- * The {@link PlatformApiDataValidationException} is typically thrown in data
- * validation of the parameters passed in with an api request.
+ * The {@link AbstractPlatformResourceNotFoundException} is thrown when an api
+ * call for a resource that is expected to exist does not.
  */
 @Component
 @Scope("singleton")
-public class PlatformApiDataValidationExceptionMapper {
+public class PlatformResourceNotFoundExceptionMapper  {
 
-    public static ResponseEntity<ApiGlobalErrorResponse> toResponse(final PlatformApiDataValidationException exception) {
-        final ApiGlobalErrorResponse dataValidationErrorResponse = ApiGlobalErrorResponse.badClientRequest(
-                exception.getGlobalisationMessageCode(), exception.getDefaultUserMessage(), exception.getErrors());
-        return new ResponseEntity<>(dataValidationErrorResponse, HttpStatus.BAD_REQUEST) ;
+    public static ResponseEntity<ApiGlobalErrorResponse> toResponse(final AbstractPlatformResourceNotFoundException exception) {
+    	final ApiGlobalErrorResponse notFoundErrorResponse = ApiGlobalErrorResponse.notFound(exception.getGlobalisationMessageCode(),
+                exception.getDefaultUserMessage(), exception.getDefaultUserMessageArgs());
+        return new ResponseEntity<>(notFoundErrorResponse, HttpStatus.NOT_FOUND) ;
     }
 }

@@ -18,9 +18,6 @@
  */
 package org.apache.messagegateway.helpers;
 
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +30,6 @@ import org.springframework.stereotype.Component;
  * The {@link PlatformApiDataValidationException} is typically thrown in data
  * validation of the parameters passed in with an api request.
  */
-@Provider
 @Component
 @Scope("singleton")
 public class PlatformApiDataValidationExceptionMapper {

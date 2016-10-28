@@ -41,6 +41,7 @@ public class SmsApiResource {
     
     @RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @RequestBody final String payload) {
+    	System.out.println("SmsApiResource.updateDeliveryStatus()############"+payload);
        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

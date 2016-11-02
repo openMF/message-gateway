@@ -40,6 +40,7 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date modifiedOnDate;
 	
+	@com.fasterxml.jackson.annotation.JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "bridge", orphanRemoval = true, fetch = FetchType.EAGER)
 	public Collection<SMSBridgeConfig> bridgeConfigurations = new ArrayList<>();
 

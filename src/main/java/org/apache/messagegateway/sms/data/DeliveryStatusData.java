@@ -6,14 +6,14 @@ import org.apache.messagegateway.sms.util.SmsMessageStatusType;
 
 public class DeliveryStatusData {
 
-	private final Long id;
+	private final String id;
 	private final String externalId;
 	private final Date deliveredOnDate;
 	private final Integer deliveryStatus;
 	private final Boolean hasError;
 	private final String errorMessage;
 
-	public DeliveryStatusData(final Long id, final String externalId, final Date deliveredOnDate,
+	public DeliveryStatusData(final String id, final String externalId, final Date deliveredOnDate,
 			final Integer deliveryStatus, final String errorMessage) {
 		this.id = id;
 		this.externalId = externalId;
@@ -27,7 +27,7 @@ public class DeliveryStatusData {
 		this.errorMessage = errorMessage;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

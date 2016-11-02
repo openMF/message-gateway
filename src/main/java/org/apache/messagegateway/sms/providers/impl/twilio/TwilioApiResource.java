@@ -27,6 +27,7 @@ public class TwilioApiResource {
     	SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
     	if(message != null) {
     		message.setDeliveryStatus(TwilioStatus.smsStatus(payload.getMessageStatus()).getValue());
+    		this.smsOutboundMessageRepository.save(message) ;
     	}else {
     		//log here
     	}

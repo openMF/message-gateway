@@ -24,4 +24,23 @@ public class TwilioStatus {
 		}
 		return smsStatus ;
 	}
+	
+	public static SmsMessageStatusType smsStatus(final String twilioStatus) {
+		SmsMessageStatusType smsStatus = SmsMessageStatusType.PENDING;
+		switch(twilioStatus) {
+		case "queued":
+		case "sending":
+		case "sent" :
+			smsStatus = SmsMessageStatusType.SENT ;
+				break ;
+		case "delivered":
+			smsStatus = SmsMessageStatusType.DELIVERED;
+			break ;
+		case "undelivered":
+		case "failed":
+			smsStatus = SmsMessageStatusType.FAILED ;
+			break ;
+		}
+		return smsStatus ;
+	}
 }

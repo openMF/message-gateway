@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.messagegateway.sms.data.DeliveryStatusData;
 import org.apache.messagegateway.sms.domain.SMSMessage;
 import org.apache.messagegateway.sms.providers.SMSProviderFactory;
+import org.apache.messagegateway.sms.providers.impl.twilio.TwilioStatus;
 import org.apache.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.apache.messagegateway.sms.util.SmsMessageStatusType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,12 @@ public class SMSMessageService {
 	}
 	private void sendMessage(final Collection<SMSMessage> message) {
 		this.smsProviderFactory.sendShortMessage(message);
+	}
+
+	public void updateDeliverStatusFromServer(Long messageId, Map<String, String> parseResponse) {
+		SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
+		message.setDeliveryStatus(TwilioStatus.smsStatus(parseResponse.get("MessageStatus")).getValue());
+		
 	}
 	
 	

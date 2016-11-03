@@ -2,6 +2,8 @@ package org.apache.messagegateway.sms.providers.impl.twilio;
 
 import org.apache.messagegateway.sms.domain.SMSMessage;
 import org.apache.messagegateway.sms.repository.SmsOutboundMessageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/twilio")
 public class TwilioApiResource {
 
+	private static final Logger logger = LoggerFactory.getLogger(TwilioApiResource.class);
+	
 	private final SmsOutboundMessageRepository smsOutboundMessageRepository ;
 	
 	@Autowired
@@ -29,7 +33,7 @@ public class TwilioApiResource {
     		message.setDeliveryStatus(TwilioStatus.smsStatus(payload.getMessageStatus()).getValue());
     		this.smsOutboundMessageRepository.save(message) ;
     	}else {
-    		//log here
+    		logger.info("Message with Message id "+messageId+" Not found");
     	}
        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

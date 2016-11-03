@@ -1,15 +1,9 @@
 package org.apache.messagegateway.sms.providers.impl.twilio;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.messagegateway.configuration.HostConfig;
 import org.apache.messagegateway.exception.MessageGatewayException;
 import org.apache.messagegateway.sms.domain.SMSBridge;
 import org.apache.messagegateway.sms.domain.SMSMessage;
@@ -17,10 +11,8 @@ import org.apache.messagegateway.sms.providers.SMSProvider;
 import org.apache.messagegateway.sms.util.SmsMessageStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.twilio.exception.ApiException;
 import com.twilio.http.TwilioRestClient;
@@ -35,19 +27,21 @@ public class TwilioMessageProvider implements SMSProvider {
 
     private HashMap<String, ArrayList<TwilioRestClient>> restClients = new HashMap<>() ; //tenantId, twilio clients
     
-    TwilioMessageProvider() {
-        super();
+    
+    private final String callBackUrl ;
+    
+    @Autowired
+    TwilioMessageProvider(final HostConfig hostConfig) {
+    	callBackUrl = String.format("%s://%s:%d/twilio/report/", hostConfig.getProtocol(),  hostConfig.getHostName(), hostConfig.getPort());
+    	logger.info("Registering call back to twilio:"+callBackUrl);
     }
 
+    
     @Override
     public void sendMessage(final SMSBridge smsBridgeConfig, final SMSMessage message)
         throws MessageGatewayException {
-    	RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
-		String baseUrl = String.format("%s://%s:%d/twilio/report/",request.getScheme(),  request.getServerName(), request.getServerPort());
-		
     	//Based on message id, register call back. so that we get notification from Twilio about message status
-    	String statusCallback = baseUrl+message.getId() ;
+    	String statusCallback = callBackUrl+message.getId() ;
         final TwilioRestClient twilioRestClient = this.getRestClient(smsBridgeConfig);
         logger.info("Sending SMS to " + message.getMobileNumber() + " ...");
         MessageCreator creator = new MessageCreator(new PhoneNumber(message.getMobileNumber()), new PhoneNumber(smsBridgeConfig.getPhoneNo()) , message.getMessage() ) ;
@@ -55,6 +49,7 @@ public class TwilioMessageProvider implements SMSProvider {
         try {
         	Message twilioMessage = creator.create(twilioRestClient) ;
         	message.setExternalId(twilioMessage.getSid());
+        	System.out.println("TwilioMessageProvider.sendMessage():"+TwilioStatus.smsStatus(twilioMessage.getStatus()).getValue());
         	message.setDeliveryStatus(TwilioStatus.smsStatus(twilioMessage.getStatus()).getValue()) ;
         }catch (ApiException e) {
         	message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());

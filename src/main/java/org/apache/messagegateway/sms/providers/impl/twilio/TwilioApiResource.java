@@ -22,7 +22,7 @@ public class TwilioApiResource {
 		this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
 	}
 	
-	@RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/x-www-form-urlencoded"})
+	@RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/x-www-form-urlencoded"}, produces = {"application/x-www-form-urlencoded"})
     public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @ModelAttribute final TwilioReponseData payload) {
     	SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
     	if(message != null) {
@@ -31,6 +31,6 @@ public class TwilioApiResource {
     	}else {
     		//log here
     	}
-       return new ResponseEntity<>(HttpStatus.OK);
+       return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

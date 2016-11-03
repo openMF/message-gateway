@@ -5,8 +5,10 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.apache.messagegateway.sms.data.DeliveryStatusData;
@@ -18,9 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 public class SMSMessageService {
@@ -31,6 +30,8 @@ public class SMSMessageService {
 	
 	private final JdbcTemplate jdbcTemplate ;
 	
+	private ExecutorService executorService ;
+	
 	@Autowired
 	public SMSMessageService(final SmsOutboundMessageRepository smsOutboundMessageRepository,
 			final SMSProviderFactory smsProviderFactory,
@@ -40,14 +41,18 @@ public class SMSMessageService {
 		this.jdbcTemplate = new JdbcTemplate(dataSource) ;
 	}
 	
+	@PostConstruct
+	public void init() {
+		executorService = Executors.newSingleThreadExecutor();
+	}
+	
 	public void sendShortMessage(final Collection<SMSMessage> messages) {
 		Date date = new Date() ;
 		for(SMSMessage message: messages) {
 			message.setSubmittedOnDate(date);
 		}
 		this.smsOutboundMessageRepository.save(messages) ;
-		this.sendMessage(messages);
-		this.smsOutboundMessageRepository.save(messages) ;
+		this.executorService.execute(new MessageTask(this.smsOutboundMessageRepository, this.smsProviderFactory, messages));
 	}
 	
 	public Collection<DeliveryStatusData> getDeliveryStatus(Collection<Long> internalIds) {
@@ -56,15 +61,10 @@ public class SMSMessageService {
 		internaIdString = internaIdString.replace("[", "(") ;
 		internaIdString = internaIdString.replace("]", ")") ;
 		String query = mapper.schema() + " where m.internal_id in " + internaIdString;
-		System.out.println("SMSMessageService.getDeliveryStatus(): "+query);
 		Collection<DeliveryStatusData> datas = this.jdbcTemplate.query(query, mapper) ;
 		return datas ;
 	}
 	
-	private void sendMessage(final Collection<SMSMessage> message) {
-		this.smsProviderFactory.sendShortMessage(message);
-	}
-
 	public void updateDeliverStatusFromServer(Long messageId, Map<String, String> parseResponse) {
 		SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
 		message.setDeliveryStatus(TwilioStatus.smsStatus(parseResponse.get("MessageStatus")).getValue());
@@ -93,5 +93,27 @@ public class SMSMessageService {
 			DeliveryStatusData data = new DeliveryStatusData(internalId, externalId, deliveredOnDate, deliveryStatus, errorMessage) ;
 			return data;
 		}
+	}
+	
+	class MessageTask implements Runnable {
+
+		final Collection<SMSMessage> messages ;
+		final SmsOutboundMessageRepository smsOutboundMessageRepository ;
+		final SMSProviderFactory smsProviderFactory ;
+		
+		public MessageTask(final SmsOutboundMessageRepository smsOutboundMessageRepository, 
+				final SMSProviderFactory smsProviderFactory,
+				final Collection<SMSMessage> messages) {
+			this.messages = messages ;
+			this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
+			this.smsProviderFactory = smsProviderFactory ;
+		}
+		
+		@Override
+		public void run() {
+			this.smsProviderFactory.sendShortMessage(messages);
+			this.smsOutboundMessageRepository.save(messages) ;
+		}
+		
 	}
 }

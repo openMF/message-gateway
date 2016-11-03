@@ -35,7 +35,7 @@ public class SmsApiResource {
     
     @RequestMapping(value = "/{tenantId}", method = RequestMethod.GET, consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<Collection<DeliveryStatusData>> getDeliveryStatus(@PathVariable("tenantId") final String tenantId, @RequestBody final Collection<Long> messageIds) {
-    	Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(messageIds) ;
+    	Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, messageIds) ;
     	return new ResponseEntity<>(deliveryStatus, HttpStatus.OK);
     }
     

@@ -55,13 +55,13 @@ public class SMSMessageService {
 		this.executorService.execute(new MessageTask(this.smsOutboundMessageRepository, this.smsProviderFactory, messages));
 	}
 	
-	public Collection<DeliveryStatusData> getDeliveryStatus(Collection<Long> internalIds) {
+	public Collection<DeliveryStatusData> getDeliveryStatus(final String tenantId, final Collection<Long> internalIds) {
 		DeliveryStatusDataRowMapper mapper = new DeliveryStatusDataRowMapper() ;
 		String internaIdString = internalIds.toString() ;
 		internaIdString = internaIdString.replace("[", "(") ;
 		internaIdString = internaIdString.replace("]", ")") ;
-		String query = mapper.schema() + " where m.internal_id in " + internaIdString;
-		Collection<DeliveryStatusData> datas = this.jdbcTemplate.query(query, mapper) ;
+		String query = mapper.schema() + " where m.tenant_id=?"+" and m.internal_id in " +internaIdString;
+		Collection<DeliveryStatusData> datas = this.jdbcTemplate.query(query, mapper, new Object[] {tenantId}) ;
 		return datas ;
 	}
 	

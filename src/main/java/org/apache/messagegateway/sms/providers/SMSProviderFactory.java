@@ -7,10 +7,10 @@ import org.apache.messagegateway.sms.domain.SMSBridge;
 import org.apache.messagegateway.sms.domain.SMSMessage;
 import org.apache.messagegateway.sms.exception.ProviderNotDefinedException;
 import org.apache.messagegateway.sms.exception.SMSBridgeNotFoundException;
-import org.apache.messagegateway.sms.providers.impl.infobip.InfoBipMessageProvider;
-import org.apache.messagegateway.sms.providers.impl.twilio.TwilioMessageProvider;
 import org.apache.messagegateway.sms.repository.SMSBridgeRepository;
 import org.apache.messagegateway.sms.util.SmsMessageStatusType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class SMSProviderFactory implements ApplicationContextAware {
 
+	 private static final Logger logger = LoggerFactory.getLogger(SMSProviderFactory.class);
+	 
 	private ApplicationContext applicationContext;
 
 	private final SMSBridgeRepository providerDetailsRepository;
@@ -35,12 +37,9 @@ public class SMSProviderFactory implements ApplicationContextAware {
 		if (bridge == null) {
 			throw new SMSBridgeNotFoundException(message.getProviderId());
 		}
-		if (bridge.getProviderName().contains("Twilio")) {
-			return this.applicationContext.getBean(TwilioMessageProvider.class);
-		} else if (bridge.getProviderName().contains("Twilio")) {
-			return this.applicationContext.getBean(InfoBipMessageProvider.class);
-		}
-		throw new ProviderNotDefinedException() ;
+		SMSProvider provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey()) ;
+		if(provider == null) throw new ProviderNotDefinedException() ;
+		return provider ;
 	}
 
 	@Override
@@ -56,23 +55,18 @@ public class SMSProviderFactory implements ApplicationContextAware {
 			if (bridge == null) {
 				throw new SMSBridgeNotFoundException(message.getProviderId());
 			}
-			if (bridge.getProviderName().contains("Twilio")) {
-				provider = this.applicationContext.getBean(TwilioMessageProvider.class);
-			} else if (bridge.getProviderName().contains("InfoBip")) {
-				provider = this.applicationContext.getBean(InfoBipMessageProvider.class);
-			}
-			if (provider == null)
-				throw new ProviderNotDefinedException();
+			provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey()) ;
+			if (provider == null) throw new ProviderNotDefinedException();
 			provider.sendMessage(bridge, message);
 			message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
-		} catch (SMSBridgeNotFoundException | MessageGatewayException | ProviderNotDefinedException e) {
+		} catch (SMSBridgeNotFoundException | MessageGatewayException | ProviderNotDefinedException | BeansException e) {
+			logger.error(e.getMessage());
 			message.setDeliveryErrorMessage(e.getMessage());
 			message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
 		}
 	}
 	
 	public void sendShortMessage(final Collection<SMSMessage> messages) {
-		
 		for(SMSMessage message: messages) {
 			SMSBridge bridge = this.providerDetailsRepository.findByIdAndTenantId(message.getProviderId(),
 					message.getTenantId());
@@ -81,16 +75,12 @@ public class SMSProviderFactory implements ApplicationContextAware {
 				if (bridge == null) {
 					throw new SMSBridgeNotFoundException(message.getProviderId());
 				}
-				if (bridge.getProviderName().contains("Twilio") || bridge.getProviderName().contains("twilio")) {
-					provider = this.applicationContext.getBean(TwilioMessageProvider.class);
-				} else if (bridge.getProviderName().contains("InfoBip")) {
-					provider = this.applicationContext.getBean(InfoBipMessageProvider.class);
-				}
+				provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey()) ;
 				if (provider == null)
 					throw new ProviderNotDefinedException();
 				provider.sendMessage(bridge, message);
-				message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
-			} catch (SMSBridgeNotFoundException | MessageGatewayException | ProviderNotDefinedException e) {
+			} catch (SMSBridgeNotFoundException | MessageGatewayException | ProviderNotDefinedException | BeansException e) {
+				logger.error(e.getMessage());
 				message.setDeliveryErrorMessage(e.getMessage());
 				message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
 			}

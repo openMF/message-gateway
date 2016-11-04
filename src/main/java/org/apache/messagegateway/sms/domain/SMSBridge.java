@@ -23,7 +23,7 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	@Column(name = "phone_no", nullable = false)
 	private String phoneNo;
 
-	@Column(name = "provider_key", nullable = false)
+	@Column(name = "provider_app_key", nullable = false)
 	private String providerAppKey; //In future we can use for some kind of authentication
 
 	@Column(name = "provider_name", nullable = false)
@@ -39,6 +39,9 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	@Column(name = "last_modified_on", nullable = true)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date modifiedOnDate;
+	
+	@Column(name = "provider_key", nullable = true) //This key is useful to load the actual implementation 
+	private String providerKey ; 
 	
 	@com.fasterxml.jackson.annotation.JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "bridge", orphanRemoval = true, fetch = FetchType.EAGER)
@@ -61,10 +64,11 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 		this.providerDescription = providerDescription ;
 	}
 	
-	public SMSBridge(final String tenantId, final String phoneNo, final String providerName, final String providerDescription) {
+	public SMSBridge(final String tenantId, final String phoneNo, final String providerName, final String providerKey, final String providerDescription) {
 		this.tenantId = tenantId ;
 		this.phoneNo = phoneNo ;
 		this.providerName = providerName ;
+		this.providerKey = providerKey ;
 		this.providerDescription = providerDescription ;
 	}
 	
@@ -94,6 +98,10 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	
 	public String getProviderName() {
 		return providerName;
+	}
+	
+	public String getProviderKey() {
+		return this.providerKey ;
 	}
 	
 	public void setProviderDescription(final String providerDescription) {

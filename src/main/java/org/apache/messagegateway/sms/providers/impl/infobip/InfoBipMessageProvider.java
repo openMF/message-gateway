@@ -50,7 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-@Service(value = "InfoBipSMS")
+@Service(value = "InfoBip")
 public class InfoBipMessageProvider implements SMSProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(InfoBipMessageProvider.class);

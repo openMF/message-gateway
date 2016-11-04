@@ -6,6 +6,7 @@ package org.apache.messagegateway.sms.util;
 public enum SmsMessageStatusType {
 	INVALID(0, "smsMessageStatusType.invalid"), // unknown status type
     PENDING(100, "smsMessageStatusType.pending"), // message received
+    WAITING_FOR_REPORT(150, "smsMessageStatusType.pending"),
     SENT(200, "smsMessageStatusType.sent"), // message sent to the SMS gateway
     DELIVERED(300, "smsMessageStatusType.delivered"), // SMS gateway's attempt to deliver message to recipient's phone was successful
     FAILED(400, "smsMessageStatusType.failed"); // SMS gateway's attempt to deliver message to recipient's phone failed
@@ -27,6 +28,11 @@ public enum SmsMessageStatusType {
             case 100:
                 enumeration = SmsMessageStatusType.PENDING;
             break;
+            
+            case 150:
+                enumeration = SmsMessageStatusType.WAITING_FOR_REPORT;
+            break;
+            
             case 200:
                 enumeration = SmsMessageStatusType.SENT;
             break;

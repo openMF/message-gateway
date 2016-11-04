@@ -20,7 +20,7 @@ import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.type.PhoneNumber;
 
-@Service(value="TwilioSMS")
+@Service(value="Twilio")
 public class TwilioMessageProvider implements SMSProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TwilioMessageProvider.class);
@@ -49,9 +49,10 @@ public class TwilioMessageProvider implements SMSProvider {
         try {
         	Message twilioMessage = creator.create(twilioRestClient) ;
         	message.setExternalId(twilioMessage.getSid());
-        	System.out.println("TwilioMessageProvider.sendMessage():"+TwilioStatus.smsStatus(twilioMessage.getStatus()).getValue());
+        	logger.debug("TwilioMessageProvider.sendMessage():"+TwilioStatus.smsStatus(twilioMessage.getStatus()).getValue());
         	message.setDeliveryStatus(TwilioStatus.smsStatus(twilioMessage.getStatus()).getValue()) ;
         }catch (ApiException e) {
+        	logger.debug("ApiException while sending message to :"+message.getMobileNumber());
         	message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
         	message.setDeliveryErrorMessage(e.getMessage());
         }

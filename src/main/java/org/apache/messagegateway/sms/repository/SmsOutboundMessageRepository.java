@@ -3,6 +3,8 @@ package org.apache.messagegateway.sms.repository;
 import java.util.List;
 
 import org.apache.messagegateway.sms.domain.SMSMessage;
+import org.apache.messagegateway.sms.util.SmsMessageStatusType;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -18,7 +20,7 @@ public interface SmsOutboundMessageRepository extends JpaRepository<SMSMessage, 
      * @param pageable -- Abstract interface for pagination information.
      * @return List of {@link SmsMessageStatusType} list
      **/
-    List<SMSMessage> findByDeliveryStatus(Integer deliveryStatus, Pageable pageable);
+    Page<SMSMessage> findByDeliveryStatus(Integer deliveryStatus, Pageable pageable);
 	
 	/** 
 	 * find {@link SmsMessageStatusType} object by externalId

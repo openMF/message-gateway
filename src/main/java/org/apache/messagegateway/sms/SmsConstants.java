@@ -16,6 +16,8 @@ public interface SmsConstants extends MessageGatewayConstants{
 
 	String providername_paramname = "providerName" ;
 
+	String providerkey_paramname = "providerkey" ;
+	
 	String providerdescription_paramname = "providerDescription" ;
 	
 	String bridgeconfigurations_paramname = "bridgeConfigurations" ;

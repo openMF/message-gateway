@@ -2,9 +2,10 @@ CREATE TABLE m_sms_bridge (
   id                      BIGINT(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
   tenant_id               VARCHAR(32)                                     NOT NULL,
   phone_no                VARCHAR(255)                                    NOT NULL,
-  provider_key            VARCHAR(100)                                    NOT NULL,
-  provider_name            VARCHAR(100)                                    NOT NULL,
-  description            VARCHAR(500)                                     NOT NULL,
+  provider_app_key        VARCHAR(100)                                    NOT NULL,
+  provider_name           VARCHAR(100)                                    NOT NULL,
+  provider_key 		  	  VARCHAR(100)									  NOT NULL,			
+  description             VARCHAR(500)                                    NOT NULL,
   created_on              TIMESTAMP                                       NULL DEFAULT NULL,
   last_modified_on        TIMESTAMP                                       NULL DEFAULT NULL
 );
@@ -46,9 +47,9 @@ CREATE TABLE event_sourcing (
   last_modified_on TIMESTAMP                                                     NOT NULL
 );
 
-INSERT INTO `m_sms_bridge` (`tenant_id`, `phone_no`, `provider_key`, `provider_name`, `description`) 
-VALUES ('default', '+12512873781', '12512873781', 'Twilio SMS Provider', 'Twilio SMS Provider'),
-('default', '+12512873781', '12512873781', 'Infobip SMS Provider', 'Infobip SMS Provider') ;
+INSERT INTO `m_sms_bridge` (`tenant_id`, `phone_no`, `provider_app_key`, `provider_key`, `provider_name`, `description`) 
+VALUES ('default', '+12512873781', 'TwilioGeneratedKey','Twilio', 'Twilio SMS Provider', 'Twilio SMS Provider'),
+('default', '+12512873781', 'InfoBipGeneratedKey', 'InfoBip', 'Infobip SMS Provider', 'Infobip SMS Provider') ;
 
 INSERT INTO `m_provider_configuration` (`provider_id`, `config_name`, `config_value`) 
 VALUES (1, 'Provider_Account_Id', 'ACcb95cd9fb2e7d72f85c06aea6473f41d'),

@@ -5,8 +5,11 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -16,7 +19,12 @@ import org.apache.messagegateway.sms.domain.SMSMessage;
 import org.apache.messagegateway.sms.providers.SMSProviderFactory;
 import org.apache.messagegateway.sms.providers.impl.twilio.TwilioStatus;
 import org.apache.messagegateway.sms.repository.SmsOutboundMessageRepository;
+import org.apache.messagegateway.sms.util.SmsMessageStatusType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -24,6 +32,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class SMSMessageService {
 
+	 private static final Logger logger = LoggerFactory.getLogger(SMSMessageService.class);
+	 
 	private final SmsOutboundMessageRepository smsOutboundMessageRepository ;
 	
 	private final SMSProviderFactory smsProviderFactory ;
@@ -31,6 +41,8 @@ public class SMSMessageService {
 	private final JdbcTemplate jdbcTemplate ;
 	
 	private ExecutorService executorService ;
+	
+	private ScheduledExecutorService scheduledExecutorService ;
 	
 	@Autowired
 	public SMSMessageService(final SmsOutboundMessageRepository smsOutboundMessageRepository,
@@ -43,10 +55,16 @@ public class SMSMessageService {
 	
 	@PostConstruct
 	public void init() {
+		logger.debug("Intializing SMSMessage Service.....");
 		executorService = Executors.newSingleThreadExecutor();
+		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor() ;
+		scheduledExecutorService.schedule(new BootupPendingMessagesTask(this.smsOutboundMessageRepository, this.smsProviderFactory) , 1, TimeUnit.MINUTES) ;
+		//When do I have to shutdown  scheduledExecutorService ? :-( as it is no use after triggering BootupPendingMessagesTask
+		//Shutdown scheduledExecutorService on application close event
 	}
 	
 	public void sendShortMessage(final Collection<SMSMessage> messages) {
+		logger.debug("Request Received to send messages.....");
 		Date date = new Date() ;
 		for(SMSMessage message: messages) {
 			message.setSubmittedOnDate(date);
@@ -114,6 +132,34 @@ public class SMSMessageService {
 			this.smsProviderFactory.sendShortMessage(messages);
 			this.smsOutboundMessageRepository.save(messages) ;
 		}
+	}
+	
+	class BootupPendingMessagesTask implements Callable<Integer> {
+
+		final SmsOutboundMessageRepository smsOutboundMessageRepository ;
+		final SMSProviderFactory smsProviderFactory ;
 		
+		public BootupPendingMessagesTask(final SmsOutboundMessageRepository smsOutboundMessageRepository, 
+				final SMSProviderFactory smsProviderFactory) {
+			this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
+			this.smsProviderFactory = smsProviderFactory ;
+		}
+
+		@Override
+		public Integer call() throws Exception {
+			logger.info("Sending Pending Messages on bootup.....");
+			Integer page = 0;
+			Integer initialSize = 200;
+			Integer totalPageSize = 0;
+			do {
+				PageRequest pageRequest = new PageRequest(page, initialSize);
+				Page<SMSMessage> messages = this.smsOutboundMessageRepository.findByDeliveryStatus(SmsMessageStatusType.PENDING.getValue(), pageRequest) ;
+				page++;
+				totalPageSize = messages.getTotalPages();
+				this.smsProviderFactory.sendShortMessage(messages.getContent());
+				this.smsOutboundMessageRepository.save(messages) ;
+			}while (page < totalPageSize);
+			return totalPageSize;
+		}
 	}
 }

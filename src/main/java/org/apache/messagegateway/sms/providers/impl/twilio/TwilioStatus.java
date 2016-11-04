@@ -11,6 +11,8 @@ public class TwilioStatus {
 		switch(twilioStatus.toString()) {
 		case "queued":
 		case "sending":
+			smsStatus = SmsMessageStatusType.WAITING_FOR_REPORT ;
+			break ;
 		case "sent" :
 			smsStatus = SmsMessageStatusType.SENT ;
 				break ;
@@ -30,6 +32,8 @@ public class TwilioStatus {
 		switch(twilioStatus) {
 		case "queued":
 		case "sending":
+			smsStatus = SmsMessageStatusType.WAITING_FOR_REPORT ;
+			break ;
 		case "sent" :
 			smsStatus = SmsMessageStatusType.SENT ;
 				break ;

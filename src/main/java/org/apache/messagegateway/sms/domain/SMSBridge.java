@@ -40,6 +40,7 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date modifiedOnDate;
 	
+	@com.fasterxml.jackson.annotation.JsonIgnore
 	@Column(name = "provider_key", nullable = true) //This key is useful to load the actual implementation 
 	private String providerKey ; 
 	

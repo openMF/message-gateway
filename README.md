@@ -1,5 +1,17 @@
 # message-gateway
 
+## Build set up
+##### To create standalone application:
+  ./gradlew clean build 
+##### To run 
+  cd build/lib
+  java -jar message-gateway-0.0.1.jar
+
+##### To create deployable war:
+./gradlew clean build -Pprofile=deployable
+War file can be found in build/libs
+ 
+
 Steps to configure Message-Gateway
 
 ## Create tenant with http://host:9191/tenants/

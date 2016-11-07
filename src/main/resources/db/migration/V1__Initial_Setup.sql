@@ -55,3 +55,5 @@ INSERT INTO `m_provider_configuration` (`provider_id`, `config_name`, `config_va
 VALUES (1, 'Provider_Account_Id', 'ACcb95cd9fb2e7d72f85c06aea6473f41d'),
 (1, 'Provider_Auth_Token', 'fed820a353def95f1e5aad077fef670e') ;
 
+INSERT INTO `m_sms_bridge` (`tenant_id`, `phone_no`, `provider_app_key`, `provider_key`, `provider_name`, `description`)
+VALUES ('default', '+1234567890', 'DummyGeneratedKey','Dummy', 'Dummy SMS Provider - Testing', 'Dummy, just for testing');

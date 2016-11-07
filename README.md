@@ -36,7 +36,7 @@ Steps to configure Message-Gateway
 		]
 	}
 	
-	This API will return Bridge Identifier by which you can use while sending SMS
+This API will return Bridge Identifier by which you can use while sending SMS
 	
 3) Send SMS by using one of the provider with http://localhost:9191/sms
 	Method: POST
@@ -44,7 +44,8 @@ Steps to configure Message-Gateway
  		Fineract-Platform-TenantId:tenantId
  		Fineract-Tenant-App-Key:generatedAppkeywhilecreatingtenant
  	Request Body:
- 		[{
+ 		
+		[{
 			"internalId":"55",
 			"mobileNumber":"+91xxxxxxxxxx",
 			"message":"Hello from Fineract",

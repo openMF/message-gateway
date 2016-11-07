@@ -41,5 +41,8 @@ CREATE TABLE m_sms_bridge_configuration (
   CONSTRAINT `m_provider_configuration_1` FOREIGN KEY (`sms_bridge_id`) REFERENCES `m_sms_bridge` (`id`)
 );
 
-INSERT INTO `m_sms_bridge` (`tenant_id`, `phone_no`, `provider_app_key`, `provider_key`, `provider_name`, `description`)
-VALUES ('default', '+1234567890', 'DummyGeneratedKey','Dummy', 'Dummy SMS Provider - Testing', 'Dummy, just for testing');
+INSERT INTO `m_tenants` (`tenant_id`, `tenant_app_key`, `description`)
+VALUES ('default', "123456543234abdkdkdkd", "TEST TENANT") ;
+
+INSERT INTO `m_sms_bridge` (`tenant_id`, `tenant_phone_no`, `provider_key`, `provider_name`, `description`)
+VALUES (1, '+1234567890', 'Dummy', 'Dummy SMS Provider - Testing', 'Dummy, just for testing');

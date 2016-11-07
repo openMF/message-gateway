@@ -5,7 +5,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.1.5.RELEASE")
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.1.5.RELEASE',
+               'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
     }
 }
 
@@ -13,6 +14,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'spring-boot'
+apply plugin: 'license'
 
 if (project.hasProperty('profile')
         && project.getProperty('profile') == 'deployable') {
@@ -27,6 +29,17 @@ repositories {
     maven { url "http://repo.spring.io/libs-release" }
     maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
 }
+
+license {
+    header rootProject.file('./LICENSE.md')
+    excludes(["**/*.html", "**/*.mustache", "**/package-info.java", "**/keystore.jks"])
+    strictCheck true
+}
+
+task licenseFormatBuildScripts (type:nl.javadude.gradle.plugins.license.License) {
+    source = fileTree(dir: './', includes: ['**/*.bat', '**/*.sh', '**/*.sql'])
+}
+licenseFormat.dependsOn licenseFormatBuildScripts
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")

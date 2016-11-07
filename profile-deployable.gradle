@@ -5,7 +5,7 @@ configurations {
 }
 
 war {
-    baseName = 'mifos-sms-bridge'
+    baseName = 'message-gateway'
     version = '0.0.1'
 }
 

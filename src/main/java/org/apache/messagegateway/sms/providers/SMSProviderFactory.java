@@ -9,6 +9,7 @@ import org.apache.messagegateway.sms.exception.ProviderNotDefinedException;
 import org.apache.messagegateway.sms.exception.SMSBridgeNotFoundException;
 import org.apache.messagegateway.sms.repository.SMSBridgeRepository;
 import org.apache.messagegateway.sms.util.SmsMessageStatusType;
+import org.apache.messagegateway.tenants.domain.Tenant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -24,18 +25,18 @@ public class SMSProviderFactory implements ApplicationContextAware {
 	 
 	private ApplicationContext applicationContext;
 
-	private final SMSBridgeRepository providerDetailsRepository;
+	private final SMSBridgeRepository smsBridgeRepository;
 
 	@Autowired
-	public SMSProviderFactory(final SMSBridgeRepository providerDetailsRepository) {
-		this.providerDetailsRepository = providerDetailsRepository;
+	public SMSProviderFactory(final SMSBridgeRepository smsBridgeRepository) {
+		this.smsBridgeRepository = smsBridgeRepository;
 	}
 
 	public SMSProvider getSMSProvider(final SMSMessage message) throws SMSBridgeNotFoundException, ProviderNotDefinedException {
-		SMSBridge bridge = this.providerDetailsRepository.findByIdAndTenantId(message.getProviderId(),
+		SMSBridge bridge = this.smsBridgeRepository.findByIdAndTenantId(message.getBridgeId(),
 				message.getTenantId());
 		if (bridge == null) {
-			throw new SMSBridgeNotFoundException(message.getProviderId());
+			throw new SMSBridgeNotFoundException(message.getBridgeId());
 		}
 		SMSProvider provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey()) ;
 		if(provider == null) throw new ProviderNotDefinedException() ;
@@ -48,12 +49,12 @@ public class SMSProviderFactory implements ApplicationContextAware {
 	}
 
 	public void sendShortMessage(final SMSMessage message) {
-		SMSBridge bridge = this.providerDetailsRepository.findByIdAndTenantId(message.getProviderId(),
+		SMSBridge bridge = this.smsBridgeRepository.findByIdAndTenantId(message.getBridgeId(),
 				message.getTenantId());
 		SMSProvider provider = null;
 		try {
 			if (bridge == null) {
-				throw new SMSBridgeNotFoundException(message.getProviderId());
+				throw new SMSBridgeNotFoundException(message.getBridgeId());
 			}
 			provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey()) ;
 			if (provider == null) throw new ProviderNotDefinedException();
@@ -68,12 +69,12 @@ public class SMSProviderFactory implements ApplicationContextAware {
 	
 	public void sendShortMessage(final Collection<SMSMessage> messages) {
 		for(SMSMessage message: messages) {
-			SMSBridge bridge = this.providerDetailsRepository.findByIdAndTenantId(message.getProviderId(),
+			SMSBridge bridge = this.smsBridgeRepository.findByIdAndTenantId(message.getBridgeId(),
 					message.getTenantId());
 			SMSProvider provider = null;
 			try {
 				if (bridge == null) {
-					throw new SMSBridgeNotFoundException(message.getProviderId());
+					throw new SMSBridgeNotFoundException(message.getBridgeId());
 				}
 				provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey()) ;
 				if (provider == null)

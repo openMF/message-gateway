@@ -18,15 +18,13 @@
  */
 package org.apache.messagegateway.helpers;
 
+import org.apache.messagegateway.exception.PlatformApiDataValidationException;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 /**
- * An {@link ExceptionMapper} to map {@link PlatformApiDataValidationException}
- * thrown by platform into a HTTP API friendly format.
- * 
  * The {@link PlatformApiDataValidationException} is typically thrown in data
  * validation of the parameters passed in with an api request.
  */

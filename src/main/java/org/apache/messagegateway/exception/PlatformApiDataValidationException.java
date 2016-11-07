@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.messagegateway.helpers;
+package org.apache.messagegateway.exception;
 
 import java.util.List;
 
+import org.apache.messagegateway.helpers.ApiParameterError;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

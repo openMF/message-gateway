@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.messagegateway.helpers;
+package org.apache.messagegateway.exception;
 
 /**
  * A {@link RuntimeException} thrown when resources that are queried for are not

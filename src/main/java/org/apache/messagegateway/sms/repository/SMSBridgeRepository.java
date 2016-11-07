@@ -12,9 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface SMSBridgeRepository extends JpaRepository<SMSBridge, Long>, JpaSpecificationExecutor<SMSBridge> {
 
 	
-	public Collection<SMSBridge> findByTenantId(@Param("tenantId") final String tenantId) ;
+	public Collection<SMSBridge> findByTenantId(@Param("tenantId") final Long tenantId) ;
 	
-	public SMSBridge findByProviderAppKey(@Param("providerAppKey") final String providerAppKey) ;
-	
-	public SMSBridge findByIdAndTenantId(@Param("id") final Long id, @Param("tenantId") final String tenantId) ; 
+	public SMSBridge findByIdAndTenantId(@Param("id") final Long id, @Param("tenantId") final Long tenantId) ; 
 }

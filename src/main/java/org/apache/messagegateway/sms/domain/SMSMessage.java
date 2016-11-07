@@ -14,14 +14,15 @@ import org.apache.messagegateway.sms.util.SmsMessageStatusType;
 @Table(name = "m_outbound_messages")
 public class SMSMessage extends AbstractPersistableCustom<Long> {
 
+	@com.fasterxml.jackson.annotation.JsonIgnore
+	@Column(name = "tenant_id", nullable = false)
+	private Long tenantId;
+	
 	@Column(name = "external_id", nullable = true)
 	private String externalId;
 
 	@Column(name = "internal_id", nullable = false)
 	private Long internalId;
-
-	@Column(name = "tenant_id", nullable = false)
-	private String tenantId;
 
 	@Column(name = "submitted_on_date", nullable = true)
 	@Temporal(TemporalType.DATE)
@@ -46,17 +47,17 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 	@Column(name = "message", nullable = false)
 	private String message;
 
-	@Column(name = "provider_id", nullable = false)
-	private Long providerId;
+	@Column(name = "sms_bridge_id", nullable = false)
+	private Long bridgeId;
 
 	protected SMSMessage() {
 		
 	}
 
-	private SMSMessage(final String externalId, final Long internalId, final String tenantId,
+	private SMSMessage(final String externalId, final Long internalId, final Long tenantId,
 			final Date submittedOnDate, final Date deliveredOnDate,
 			final SmsMessageStatusType deliveryStatus, final String deliveryErrorMessage, final String sourceAddress,
-			final String mobileNumber, final String message, final Long providerId) {
+			final String mobileNumber, final String message, final Long bridgeId) {
 		this.externalId = externalId;
 		this.internalId = internalId;
 		this.tenantId = tenantId;
@@ -67,15 +68,15 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 		this.sourceAddress = sourceAddress;
 		this.mobileNumber = mobileNumber;
 		this.message = message;
-		this.providerId = providerId;
+		this.bridgeId = bridgeId;
 	}
 
 	public static SMSMessage getPendingMessages(final String externalId, final Long internalId,
-			final String mifosTenantIdentifier, final Date submittedOnDate,
+			final Long tenantId, final Date submittedOnDate,
 			final Date deliveredOnDate, final String deliveryErrorMessage, final String sourceAddress,
 			final String mobileNumber, final String message, final Long providerId) {
 
-		return new SMSMessage(externalId, internalId, mifosTenantIdentifier, submittedOnDate,
+		return new SMSMessage(externalId, internalId, tenantId, submittedOnDate,
 				deliveredOnDate, SmsMessageStatusType.PENDING, deliveryErrorMessage, sourceAddress, mobileNumber,
 				message, providerId);
 	}
@@ -83,12 +84,12 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 	/**
 	 * @return an instance of the SmsOutboundMessage class
 	 **/
-	public SMSMessage getInstance(final String externalId, final Long internalId, final String mifosTenantIdentifier,
+	public SMSMessage getInstance(final String externalId, final Long internalId, final Long tenantId,
 			final Date submittedOnDate, final Date deliveredOnDate,
 			final SmsMessageStatusType deliveryStatus, final String deliveryErrorMessage, final String sourceAddress,
 			final String mobileNumber, final String message, final Long providerId) {
 
-		return new SMSMessage(externalId, internalId, mifosTenantIdentifier, submittedOnDate,
+		return new SMSMessage(externalId, internalId, tenantId, submittedOnDate,
 				deliveredOnDate, deliveryStatus, deliveryErrorMessage, sourceAddress, mobileNumber, message,
 				providerId);
 	}
@@ -109,11 +110,11 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 		this.internalId = internalId;
 	}
 
-	public String getTenantId() {
+	public Long getTenantId() {
 		return tenantId;
 	}
 
-	public void setMifosTenantIdentifier(String tenantId) {
+	public void setTenant(Long tenantId) {
 		this.tenantId = tenantId;
 	}
 
@@ -141,12 +142,12 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 		this.message = message;
 	}
 
-	public Long getProviderId() {
-		return providerId;
+	public Long getBridgeId() {
+		return bridgeId;
 	}
 
 	public void setProviderId(Long providerId) {
-		this.providerId = providerId;
+		this.bridgeId = providerId;
 	}
 
 	public void setSubmittedOnDate(final Date submittedDate) {

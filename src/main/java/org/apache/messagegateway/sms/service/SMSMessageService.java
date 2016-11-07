@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,12 +13,13 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import org.apache.messagegateway.service.SecurityService;
 import org.apache.messagegateway.sms.data.DeliveryStatusData;
 import org.apache.messagegateway.sms.domain.SMSMessage;
 import org.apache.messagegateway.sms.providers.SMSProviderFactory;
-import org.apache.messagegateway.sms.providers.impl.twilio.TwilioStatus;
 import org.apache.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.apache.messagegateway.sms.util.SmsMessageStatusType;
+import org.apache.messagegateway.tenants.domain.Tenant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +44,18 @@ public class SMSMessageService {
 	
 	private ScheduledExecutorService scheduledExecutorService ;
 	
+	private final SecurityService securityService ;
+	
+	
 	@Autowired
 	public SMSMessageService(final SmsOutboundMessageRepository smsOutboundMessageRepository,
 			final SMSProviderFactory smsProviderFactory,
-			final DataSource dataSource) {
+			final DataSource dataSource,
+			final SecurityService securityService) {
 		this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
 		this.smsProviderFactory = smsProviderFactory ;
 		this.jdbcTemplate = new JdbcTemplate(dataSource) ;
+		this.securityService = securityService ;
 	}
 	
 	@PostConstruct
@@ -63,30 +68,25 @@ public class SMSMessageService {
 		//Shutdown scheduledExecutorService on application close event
 	}
 	
-	public void sendShortMessage(final Collection<SMSMessage> messages) {
+	public void sendShortMessage(final String tenantId, final String tenantAppKey, final Collection<SMSMessage> messages) {
 		logger.debug("Request Received to send messages.....");
-		Date date = new Date() ;
+		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
 		for(SMSMessage message: messages) {
-			message.setSubmittedOnDate(date);
+			message.setTenant(tenant.getId());
 		}
 		this.smsOutboundMessageRepository.save(messages) ;
-		this.executorService.execute(new MessageTask(this.smsOutboundMessageRepository, this.smsProviderFactory, messages));
+		this.executorService.execute(new MessageTask(tenant, this.smsOutboundMessageRepository, this.smsProviderFactory, messages));
 	}
 	
-	public Collection<DeliveryStatusData> getDeliveryStatus(final String tenantId, final Collection<Long> internalIds) {
+	public Collection<DeliveryStatusData> getDeliveryStatus(final String tenantId, final String tenantAppKey, final Collection<Long> internalIds) {
+		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
 		DeliveryStatusDataRowMapper mapper = new DeliveryStatusDataRowMapper() ;
 		String internaIdString = internalIds.toString() ;
 		internaIdString = internaIdString.replace("[", "(") ;
 		internaIdString = internaIdString.replace("]", ")") ;
 		String query = mapper.schema() + " where m.tenant_id=?"+" and m.internal_id in " +internaIdString;
-		Collection<DeliveryStatusData> datas = this.jdbcTemplate.query(query, mapper, new Object[] {tenantId}) ;
+		Collection<DeliveryStatusData> datas = this.jdbcTemplate.query(query, mapper, new Object[] {tenant.getId()}) ;
 		return datas ;
-	}
-	
-	public void updateDeliverStatusFromServer(Long messageId, Map<String, String> parseResponse) {
-		SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
-		message.setDeliveryStatus(TwilioStatus.smsStatus(parseResponse.get("MessageStatus")).getValue());
-		
 	}
 	
 	class DeliveryStatusDataRowMapper implements RowMapper<DeliveryStatusData> {
@@ -118,10 +118,12 @@ public class SMSMessageService {
 		final Collection<SMSMessage> messages ;
 		final SmsOutboundMessageRepository smsOutboundMessageRepository ;
 		final SMSProviderFactory smsProviderFactory ;
+		final Tenant tenant ;
 		
-		public MessageTask(final SmsOutboundMessageRepository smsOutboundMessageRepository, 
+		public MessageTask(final Tenant tenant, final SmsOutboundMessageRepository smsOutboundMessageRepository, 
 				final SMSProviderFactory smsProviderFactory,
 				final Collection<SMSMessage> messages) {
+			this.tenant = tenant ;
 			this.messages = messages ;
 			this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
 			this.smsProviderFactory = smsProviderFactory ;
@@ -138,7 +140,6 @@ public class SMSMessageService {
 
 		final SmsOutboundMessageRepository smsOutboundMessageRepository ;
 		final SMSProviderFactory smsProviderFactory ;
-		
 		public BootupPendingMessagesTask(final SmsOutboundMessageRepository smsOutboundMessageRepository, 
 				final SMSProviderFactory smsProviderFactory) {
 			this.smsOutboundMessageRepository = smsOutboundMessageRepository ;

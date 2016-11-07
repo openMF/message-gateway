@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.messagegateway.helpers;
+package org.apache.messagegateway.exception;
 
 import java.util.List;
 

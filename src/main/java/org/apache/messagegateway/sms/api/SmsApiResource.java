@@ -3,14 +3,15 @@ package org.apache.messagegateway.sms.api;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.messagegateway.constants.MessageGatewayConstants;
 import org.apache.messagegateway.sms.data.DeliveryStatusData;
 import org.apache.messagegateway.sms.domain.SMSMessage;
 import org.apache.messagegateway.sms.service.SMSMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,23 +28,19 @@ public class SmsApiResource {
 		this.smsMessageService = smsMessageService ;
     }
 
-    @RequestMapping(value = "/{tenantId}", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
-    public ResponseEntity<Void> sendShortMessage(@RequestBody final List<SMSMessage> payload) {
-    	this.smsMessageService.sendShortMessage(payload);
+    @RequestMapping(method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
+    public ResponseEntity<Void> sendShortMessages(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
+    		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
+    		@RequestBody final List<SMSMessage> payload) {
+    	this.smsMessageService.sendShortMessage(tenantId, appKey, payload);
        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
     
-    @RequestMapping(value = "/{tenantId}", method = RequestMethod.GET, consumes = {"application/json"}, produces = {"application/json"})
-    public ResponseEntity<Collection<DeliveryStatusData>> getDeliveryStatus(@PathVariable("tenantId") final String tenantId, @RequestBody final Collection<Long> messageIds) {
-    	Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, messageIds) ;
+    @RequestMapping(value = "/report", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
+    public ResponseEntity<Collection<DeliveryStatusData>> getDeliveryStatus(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
+    		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
+    		@RequestBody final Collection<Long> internalIds) {
+    	Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey, internalIds) ;
     	return new ResponseEntity<>(deliveryStatus, HttpStatus.OK);
     }
-    
-    /*//@RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/x-www-form-urlencoded"})
-    
-    @RequestMapping(value = "/report/{providerType}/{messageId}", method = RequestMethod.POST, consumes = {"application/json", "application/x-www-form-urlencoded"})
-    public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @RequestBody final String payload) {
-    	System.out.println("SmsApiResource.updateDeliveryStatus()############"+payload);
-       return new ResponseEntity<>(HttpStatus.OK);
-    }*/
 }

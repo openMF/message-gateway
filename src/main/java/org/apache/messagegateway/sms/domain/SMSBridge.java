@@ -18,13 +18,10 @@ import javax.persistence.TemporalType;
 public class SMSBridge extends AbstractPersistableCustom<Long> {
 
 	@Column(name = "tenant_id", nullable = false)
-	private String tenantId;
+	private Long tenantId;
 
-	@Column(name = "phone_no", nullable = false)
+	@Column(name = "tenant_phone_no", nullable = false)
 	private String phoneNo;
-
-	@Column(name = "provider_app_key", nullable = false)
-	private String providerAppKey; //In future we can use for some kind of authentication
 
 	@Column(name = "provider_name", nullable = false)
 	private String providerName;
@@ -52,20 +49,19 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 		
 	}
 	
-	public SMSBridge(final String tenantId) {
+	public SMSBridge(final Long tenantId) {
 		this.tenantId = tenantId ;
 	}
 	
-	public SMSBridge(final Long id, final String tenantId, final String phoneNo, final String providerAppKey, final String providerName, final String providerDescription) {
+	public SMSBridge(final Long id, final Long tenantId, final String phoneNo, final String providerName, final String providerDescription) {
 		this.id = id ;
 		this.tenantId = tenantId ;
 		this.phoneNo = phoneNo ;
-		this.providerAppKey = providerAppKey ;
 		this.providerName = providerName ;
 		this.providerDescription = providerDescription ;
 	}
 	
-	public SMSBridge(final String tenantId, final String phoneNo, final String providerName, final String providerKey, final String providerDescription) {
+	public SMSBridge(final Long tenantId, final String phoneNo, final String providerName, final String providerKey, final String providerDescription) {
 		this.tenantId = tenantId ;
 		this.phoneNo = phoneNo ;
 		this.providerName = providerName ;
@@ -73,11 +69,11 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 		this.providerDescription = providerDescription ;
 	}
 	
-	public void setTenantId(final String tenantId) {
+	public void setTenantId(final Long tenantId) {
 		this.tenantId = tenantId ;
 	}
 	
-	public String getTenantId() {
+	public Long getTenantId() {
 		return tenantId;
 	}
 
@@ -87,10 +83,6 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	
 	public String getPhoneNo() {
 		return phoneNo;
-	}
-
-	public String getProviderAppKey() {
-		return providerAppKey;
 	}
 
 	public void setProviderName(final String providerName) {
@@ -113,10 +105,6 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 		return this.providerDescription ;
 	}
 	
-	public void setProviderAppKey(final String appkey) {
-		this.providerAppKey = appkey ;
-	}
-	
 	public Collection<SMSBridgeConfig> getBridgeConfigurations() {
 		return this.bridgeConfigurations ;
 	}
@@ -134,6 +122,10 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	
 	public void setCreatedDate(final Date createdOnDate) {
 		this.createdOnDate = createdOnDate ;
+	}
+	
+	public void setModifiedOnDate(final Date modifiedOnDate) {
+		this.modifiedOnDate = modifiedOnDate ;
 	}
 	
 	public void setSMSBridgeToBridgeConfigs() {

@@ -21,8 +21,7 @@ spring:
     password: mysql
     driver-class-name: org.drizzle.jdbc.DrizzleDriver
 
-# message templates
-message:
-  template:
-    createclient: Hello $name, welcome at Mifos X!
-    loanrepayment: Hello $name, repayment for $account received!
+# Status Callback configuration for Twilio. Port will be taken from server configuration
+hostconfig:
+  host-address: localhost
+  protocol: http

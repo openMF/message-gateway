@@ -30,6 +30,7 @@ public class TwilioApiResource {
     public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @ModelAttribute final TwilioReponseData payload) {
     	SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
     	if(message != null) {
+    		logger.info("Status Callback received from Twilio for "+messageId+" with status:"+payload.getMessageStatus());
     		message.setDeliveryStatus(TwilioStatus.smsStatus(payload.getMessageStatus()).getValue());
     		this.smsOutboundMessageRepository.save(message) ;
     	}else {

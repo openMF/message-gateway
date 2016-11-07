@@ -2,16 +2,18 @@ package org.apache.messagegateway.sms.serialization;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.messagegateway.exception.PlatformApiDataValidationException;
 import org.apache.messagegateway.helpers.ApiParameterError;
 import org.apache.messagegateway.helpers.DataValidatorBuilder;
 import org.apache.messagegateway.helpers.FromJsonHelper;
-import org.apache.messagegateway.helpers.PlatformApiDataValidationException;
 import org.apache.messagegateway.sms.SmsConstants;
 import org.apache.messagegateway.sms.domain.SMSBridge;
 import org.apache.messagegateway.sms.domain.SMSBridgeConfig;
+import org.apache.messagegateway.tenants.domain.Tenant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +32,7 @@ public class SmsBridgeSerializer {
 		this.fromApiJsonHelper = fromApiJsonHelper;
 	}
 
-	public SMSBridge validateCreate(final String json) {
+	public SMSBridge validateCreate(final String json, Tenant tenant) {
 		final Type typeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
 		this.fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, SmsConstants.supportedParameters);
 		
@@ -38,9 +40,7 @@ public class SmsBridgeSerializer {
 		final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors)
 				.resource("smsBridge");
 		final JsonElement element = this.fromApiJsonHelper.parse(json);
-		final String tenantId = this.fromApiJsonHelper.extractStringNamed(SmsConstants.tenantId_paramname, element);
-		baseDataValidator.reset().parameter(SmsConstants.tenantId_paramname).value(tenantId).notBlank();
-
+		
 		final String phoneNumber = this.fromApiJsonHelper.extractStringNamed(SmsConstants.phoneNo_paramname, element);
 		baseDataValidator.reset().parameter(SmsConstants.phoneNo_paramname).value(phoneNumber).notBlank();
 		
@@ -53,14 +53,16 @@ public class SmsBridgeSerializer {
 		final String providerDescription = this.fromApiJsonHelper.extractStringNamed(SmsConstants.providerdescription_paramname, element);
 		baseDataValidator.reset().parameter(SmsConstants.providerdescription_paramname).value(providerDescription).notBlank();
 		
-		SMSBridge bridge = new SMSBridge(tenantId, phoneNumber, providerName, providerKey, providerDescription) ;
+		SMSBridge bridge = new SMSBridge(tenant.getId(), phoneNumber, providerName, providerKey, providerDescription) ;
 		
 		JsonArray configParams = this.fromApiJsonHelper.extractJsonArrayNamed(SmsConstants.bridgeconfigurations_paramname, element);
 		baseDataValidator.reset().parameter(SmsConstants.bridgeconfigurations_paramname).value(configParams).jsonArrayNotEmpty();
 		if (configParams != null && configParams.size() > 0) {
 			assembleBridgeConfigParams(bridge, configParams, baseDataValidator);
 		}
-			 
+		bridge.setCreatedDate(new Date());
+		bridge.setSMSBridgeToBridgeConfigs(); 
+		
 		if (!dataValidationErrors.isEmpty()) {
 			throw new PlatformApiDataValidationException(dataValidationErrors);
 		}
@@ -77,7 +79,7 @@ public class SmsBridgeSerializer {
 				.resource("smsBridge");
 		 final JsonElement element = this.fromApiJsonHelper.parse(json);
 		 if (this.fromApiJsonHelper.parameterExists(SmsConstants.tenantId_paramname, element)) {
-			 final String tenantId = this.fromApiJsonHelper.extractStringNamed(SmsConstants.tenantId_paramname, element);
+			 final Long tenantId = this.fromApiJsonHelper.extractLongNamed(SmsConstants.tenantId_paramname, element);
 			 baseDataValidator.reset().parameter(SmsConstants.tenantId_paramname).value(tenantId).notBlank();
 			 bridge.setTenantId(tenantId);
 		 }
@@ -108,6 +110,7 @@ public class SmsBridgeSerializer {
 			 }
 		 }
 		 
+		 bridge.setModifiedOnDate(new Date()) ;
 		 if (!dataValidationErrors.isEmpty()) {
 				throw new PlatformApiDataValidationException(dataValidationErrors);
 		 }

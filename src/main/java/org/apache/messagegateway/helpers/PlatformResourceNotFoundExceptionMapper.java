@@ -18,6 +18,7 @@
  */
 package org.apache.messagegateway.helpers;
 
+import org.apache.messagegateway.exception.AbstractPlatformResourceNotFoundException;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

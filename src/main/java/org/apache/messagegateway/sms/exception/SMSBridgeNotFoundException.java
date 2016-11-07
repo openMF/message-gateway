@@ -1,6 +1,6 @@
 package org.apache.messagegateway.sms.exception;
 
-import org.apache.messagegateway.helpers.AbstractPlatformResourceNotFoundException;
+import org.apache.messagegateway.exception.AbstractPlatformResourceNotFoundException;
 
 public class SMSBridgeNotFoundException extends AbstractPlatformResourceNotFoundException{
 

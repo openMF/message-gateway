@@ -21,15 +21,12 @@ package org.apache.messagegateway.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.messagegateway.exception.UnsupportedParameterException;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-/**
- * An {@link ExceptionMapper} to map {@link UnsupportedParameterException}
- * thrown by platform into a HTTP API friendly format.
- */
 @Component
 @Scope("singleton")
 public class UnsupportedParameterExceptionMapper  {

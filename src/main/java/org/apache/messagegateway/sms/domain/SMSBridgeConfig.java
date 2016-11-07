@@ -8,11 +8,11 @@ import javax.persistence.Table;
 
 @SuppressWarnings("serial")
 @Entity
-@Table(name="m_provider_configuration")
+@Table(name="m_sms_bridge_configuration")
 public class SMSBridgeConfig extends AbstractPersistableCustom<Long>{
 
 	@ManyToOne(optional = false)
-    @JoinColumn(name = "provider_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "sms_bridge_id", referencedColumnName = "id", nullable = false)
     private SMSBridge bridge;
 	
 	@Column(name = "config_name", nullable = false)

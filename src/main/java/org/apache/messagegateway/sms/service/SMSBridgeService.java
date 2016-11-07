@@ -1,21 +1,19 @@
 package org.apache.messagegateway.sms.service;
 
 import java.util.Collection;
-import java.util.Date;
 
+import org.apache.messagegateway.service.SecurityService;
 import org.apache.messagegateway.sms.domain.SMSBridge;
 import org.apache.messagegateway.sms.exception.SMSBridgeNotFoundException;
 import org.apache.messagegateway.sms.repository.SMSBridgeRepository;
 import org.apache.messagegateway.sms.serialization.SmsBridgeSerializer;
+import org.apache.messagegateway.tenants.domain.Tenant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service(value = "apacheServiceBridge")
 public class SMSBridgeService {
-
-	// TODO://Do we need implement ApplicationEventPublisherAware?
-	//private ApplicationEventPublisher applicationEventPublisher;
 
 	private final SMSBridgeRepository smsBridgeRepository;
 
@@ -32,36 +30,33 @@ public class SMSBridgeService {
 		this.securityService = securityService ;
 	}
 
-	/*
-	 * @Override public void
-	 * setApplicationEventPublisher(ApplicationEventPublisher
-	 * applicationEventPublisher) { this.applicationEventPublisher =
-	 * applicationEventPublisher; }
-	 */
-
-	public Collection<SMSBridge> retrieveProviderDetails(final String tenantId) {
-		return this.smsBridgeRepository.findByTenantId(tenantId);
+	public Collection<SMSBridge> retrieveProviderDetails(final String tenantId, final String tenantAppKey) {
+		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
+		return this.smsBridgeRepository.findByTenantId(tenant.getId());
 	}
 
 	@Transactional
-	public Long createSmsBridgeConfig(final String json) {
-		SMSBridge smsBridge = this.smsBridgeService.validateCreate(json) ;
-		smsBridge.setSMSBridgeToBridgeConfigs(); 
-		smsBridge.setProviderAppKey(this.securityService.generateApiKey(smsBridge));
-		smsBridge.setCreatedDate(new Date());
+	public Long createSmsBridgeConfig(final String tenantId, final String tenantAppKey, final String json) {
+		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
+		SMSBridge smsBridge = this.smsBridgeService.validateCreate(json, tenant) ;
 		final SMSBridge newSMSmsBridge = this.smsBridgeRepository.save(smsBridge);
 		return newSMSmsBridge.getId();
 	}
 
 	@Transactional
-	public void updateSmsBridge(final Long bridgeId, final String json) {
-		final SMSBridge bridge = this.smsBridgeRepository.findOne(bridgeId) ;
+	public void updateSmsBridge(final String tenantId, final String tenantAppKey, final Long bridgeId, final String json) {
+		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
+		final SMSBridge bridge = this.smsBridgeRepository.findByIdAndTenantId(bridgeId, tenant.getId()) ;
+		if (bridge == null) {
+			throw new SMSBridgeNotFoundException(bridgeId);
+		}
 		this.smsBridgeService.validateUpdate(json, bridge);
 		this.smsBridgeRepository.save(bridge);
 	}
 	
-	public Long deleteSmsBridge(final Long bridgeId) throws SMSBridgeNotFoundException{
-		final SMSBridge bridge = this.smsBridgeRepository.findOne(bridgeId) ;
+	public Long deleteSmsBridge(final String tenantId, final String tenantAppKey, final Long bridgeId) throws SMSBridgeNotFoundException{
+		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
+		final SMSBridge bridge = this.smsBridgeRepository.findByIdAndTenantId(bridgeId, tenant.getId()) ;
 		if (bridge == null) {
 			throw new SMSBridgeNotFoundException(bridgeId);
 		}
@@ -70,11 +65,12 @@ public class SMSBridgeService {
 		return bridgeId ;
 	}
 	
-	public SMSBridge retrieveSmsBridge(final String tenantId, final Long providerId)
+	public SMSBridge retrieveSmsBridge(final String tenantId, final String tenantAppKey, final Long bridgeId)
 			throws SMSBridgeNotFoundException {
-		final SMSBridge bridge = this.smsBridgeRepository.findByIdAndTenantId(providerId, tenantId);
+		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
+		final SMSBridge bridge = this.smsBridgeRepository.findByIdAndTenantId(bridgeId, tenant.getId());
 		if (bridge == null) {
-			throw new SMSBridgeNotFoundException(providerId);
+			throw new SMSBridgeNotFoundException(bridgeId);
 		}
 		return bridge;
 	}

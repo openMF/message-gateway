@@ -1,6 +1,7 @@
 package org.apache.messagegateway.sms.providers.impl.twilio;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.messagegateway.configuration.HostConfig;
@@ -25,7 +26,7 @@ public class TwilioMessageProvider implements SMSProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TwilioMessageProvider.class);
 
-    private HashMap<String, ArrayList<TwilioRestClient>> restClients = new HashMap<>() ; //tenantId, twilio clients
+    private HashMap<Object, ArrayList<TwilioRestClient>> restClients = new HashMap<>() ; //tenantId, twilio clients
     
     
     private final String callBackUrl ;
@@ -47,12 +48,17 @@ public class TwilioMessageProvider implements SMSProvider {
         MessageCreator creator = new MessageCreator(new PhoneNumber(message.getMobileNumber()), new PhoneNumber(smsBridgeConfig.getPhoneNo()) , message.getMessage() ) ;
         creator.setStatusCallback(statusCallback) ;
         try {
+        	message.setSubmittedOnDate(new Date());
         	Message twilioMessage = creator.create(twilioRestClient) ;
         	message.setExternalId(twilioMessage.getSid());
         	logger.debug("TwilioMessageProvider.sendMessage():"+TwilioStatus.smsStatus(twilioMessage.getStatus()).getValue());
         	message.setDeliveryStatus(TwilioStatus.smsStatus(twilioMessage.getStatus()).getValue()) ;
+        	if(message.getDeliveryStatus().equals(SmsMessageStatusType.FAILED.getValue())) {
+        		message.setDeliveryErrorMessage(twilioMessage.getErrorMessage());
+        		logger.error("Sending SMS to :"+message.getMobileNumber()+" failed with reason "+twilioMessage.getErrorMessage());
+        	}
         }catch (ApiException e) {
-        	logger.debug("ApiException while sending message to :"+message.getMobileNumber());
+        	logger.error("ApiException while sending message to :"+message.getMobileNumber()+" with reason "+e.getMessage());
         	message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
         	message.setDeliveryErrorMessage(e.getMessage());
         }
@@ -82,6 +88,7 @@ public class TwilioMessageProvider implements SMSProvider {
     }
     
     TwilioRestClient get(final SMSBridge smsBridgeConfig) {
+    	logger.debug("Creating a new Twilio Client ....");
     	String providerAccountId = smsBridgeConfig.getConfigValue(TwilioMessageConstants.PROVIDER_ACCOUNT_ID) ;
     	String providerAuthToken = smsBridgeConfig.getConfigValue(TwilioMessageConstants.PROVIDER_AUTH_TOKEN) ;
         final TwilioRestClient client = new TwilioRestClient.Builder(providerAccountId, providerAuthToken).build();

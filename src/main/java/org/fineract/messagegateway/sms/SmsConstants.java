@@ -37,6 +37,8 @@ public interface SmsConstants extends MessageGatewayConstants{
 
 	String providerkey_paramname = "providerKey" ;
 	
+	String countrycode_paramname = "countryCode" ;
+	
 	String providerdescription_paramname = "providerDescription" ;
 	
 	String bridgeconfigurations_paramname = "bridgeConfigurations" ;
@@ -46,5 +48,5 @@ public interface SmsConstants extends MessageGatewayConstants{
 	String configvalue_paramname = "configValue" ;
 	
 	Set<String> supportedParameters = new HashSet<>(Arrays.asList(phoneNo_paramname,
-			providername_paramname, providerkey_paramname, providerdescription_paramname, bridgeconfigurations_paramname, configvalue_paramname));
+			providername_paramname, providerkey_paramname, countrycode_paramname, providerdescription_paramname, bridgeconfigurations_paramname, configvalue_paramname));
 }

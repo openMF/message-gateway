@@ -49,8 +49,11 @@ public class TwilioMessageProvider implements SMSProvider {
     
     private final String callBackUrl ;
     
+    private final StringBuilder builder ;
+    
     @Autowired
     TwilioMessageProvider(final HostConfig hostConfig) {
+    	builder = new StringBuilder() ;
     	callBackUrl = String.format("%s://%s:%d/twilio/report/", hostConfig.getProtocol(),  hostConfig.getHostName(), hostConfig.getPort());
     	logger.info("Registering call back to twilio:"+callBackUrl);
     }
@@ -62,8 +65,12 @@ public class TwilioMessageProvider implements SMSProvider {
     	//Based on message id, register call back. so that we get notification from Twilio about message status
     	String statusCallback = callBackUrl+message.getId() ;
         final TwilioRestClient twilioRestClient = this.getRestClient(smsBridgeConfig);
-        logger.info("Sending SMS to " + message.getMobileNumber() + " ...");
-        MessageCreator creator = new MessageCreator(new PhoneNumber(message.getMobileNumber()), new PhoneNumber(smsBridgeConfig.getPhoneNo()) , message.getMessage() ) ;
+        builder.setLength(0);
+        builder.append(smsBridgeConfig.getCountryCode()) ;
+        builder.append(message.getMobileNumber()) ;
+        String mobile = builder.toString() ;
+        logger.info("Sending SMS to " + mobile + " ...");
+        MessageCreator creator = new MessageCreator(new PhoneNumber(mobile), new PhoneNumber(smsBridgeConfig.getPhoneNo()) , message.getMessage() ) ;
         creator.setStatusCallback(statusCallback) ;
         try {
         	message.setSubmittedOnDate(new Date());

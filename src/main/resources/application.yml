@@ -10,7 +10,7 @@ endpoints:
 # database configuration
 spring:
   jpa:
-    show-sql: true
+    show-sql: false
     generate-ddl: false
     hibernate:
       ddl-auto: none

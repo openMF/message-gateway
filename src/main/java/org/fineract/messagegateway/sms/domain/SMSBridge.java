@@ -44,6 +44,9 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	@Column(name = "provider_name", nullable = false)
 	private String providerName;
 
+	@Column(name = "country_code", nullable = false)
+	private String countryCode ; 
+	
 	@Column(name = "description", nullable = false)
 	private String providerDescription;
 	
@@ -71,19 +74,12 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 		this.tenantId = tenantId ;
 	}
 	
-	public SMSBridge(final Long id, final Long tenantId, final String phoneNo, final String providerName, final String providerDescription) {
-		this.id = id ;
-		this.tenantId = tenantId ;
-		this.phoneNo = phoneNo ;
-		this.providerName = providerName ;
-		this.providerDescription = providerDescription ;
-	}
-	
-	public SMSBridge(final Long tenantId, final String phoneNo, final String providerName, final String providerKey, final String providerDescription) {
+	public SMSBridge(final Long tenantId, final String phoneNo, final String providerName, final String providerKey, final String countryCode, final String providerDescription) {
 		this.tenantId = tenantId ;
 		this.phoneNo = phoneNo ;
 		this.providerName = providerName ;
 		this.providerKey = providerKey ;
+		this.countryCode = countryCode ;
 		this.providerDescription = providerDescription ;
 	}
 	
@@ -113,6 +109,14 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 	
 	public String getProviderKey() {
 		return this.providerKey ;
+	}
+	
+	public String getCountryCode() {
+		return this.countryCode ;
+	}
+	
+	public void setCountryCode(final String countryCode) {
+		this.countryCode = countryCode ;
 	}
 	
 	public void setProviderDescription(final String providerDescription) {

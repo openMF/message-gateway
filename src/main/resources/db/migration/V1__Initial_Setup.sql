@@ -29,6 +29,7 @@ CREATE TABLE m_sms_bridge (
   tenant_id               BIGINT(20)                                      NOT NULL,
   tenant_phone_no         VARCHAR(255)                                    NOT NULL,
   provider_name           VARCHAR(100)                                    NOT NULL,
+  country_code			  VARCHAR(5) 									  NOT NULL,
   provider_key 		  	  VARCHAR(100)									  NOT NULL,			
   description             VARCHAR(500)                                    NOT NULL,
   created_on              TIMESTAMP                                       NULL DEFAULT NULL,
@@ -63,5 +64,5 @@ CREATE TABLE m_sms_bridge_configuration (
 INSERT INTO `m_tenants` (`tenant_id`, `tenant_app_key`, `description`)
 VALUES ('default', "123456543234abdkdkdkd", "TEST TENANT") ;
 
-INSERT INTO `m_sms_bridge` (`tenant_id`, `tenant_phone_no`, `provider_key`, `provider_name`, `description`)
-VALUES (1, '+1234567890', 'Dummy', 'Dummy SMS Provider - Testing', 'Dummy, just for testing');
+INSERT INTO `m_sms_bridge` (`tenant_id`, `tenant_phone_no`, `provider_key`, `country_code`, `provider_name`, `description`)
+VALUES (1, '+1234567890', 'Dummy', '+91', 'Dummy SMS Provider - Testing', 'Dummy, just for testing');

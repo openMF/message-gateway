@@ -65,13 +65,16 @@ public class SmsBridgeSerializer {
 		final String providerName = this.fromApiJsonHelper.extractStringNamed(SmsConstants.providername_paramname, element);
 		baseDataValidator.reset().parameter(SmsConstants.providername_paramname).value(providerName).notBlank();
 		 
+		final String countryCode = this.fromApiJsonHelper.extractStringNamed(SmsConstants.countrycode_paramname, element);
+		baseDataValidator.reset().parameter(SmsConstants.countrycode_paramname).value(countryCode).notBlank();
+		
 		final String providerKey = this.fromApiJsonHelper.extractStringNamed(SmsConstants.providerkey_paramname, element);
 		baseDataValidator.reset().parameter(SmsConstants.providerkey_paramname).value(providerKey).notBlank();
 		
 		final String providerDescription = this.fromApiJsonHelper.extractStringNamed(SmsConstants.providerdescription_paramname, element);
 		baseDataValidator.reset().parameter(SmsConstants.providerdescription_paramname).value(providerDescription).notBlank();
 		
-		SMSBridge bridge = new SMSBridge(tenant.getId(), phoneNumber, providerName, providerKey, providerDescription) ;
+		SMSBridge bridge = new SMSBridge(tenant.getId(), phoneNumber, providerName, providerKey, countryCode, providerDescription) ;
 		
 		JsonArray configParams = this.fromApiJsonHelper.extractJsonArrayNamed(SmsConstants.bridgeconfigurations_paramname, element);
 		baseDataValidator.reset().parameter(SmsConstants.bridgeconfigurations_paramname).value(configParams).jsonArrayNotEmpty();
@@ -118,6 +121,13 @@ public class SmsBridgeSerializer {
 			 final String providerDescription = this.fromApiJsonHelper.extractStringNamed(SmsConstants.providerdescription_paramname, element);
 			 baseDataValidator.reset().parameter(SmsConstants.providerdescription_paramname).value(providerDescription).notBlank();
 			 bridge.setProviderDescription(providerDescription);
+		 }
+		 
+		 if(this.fromApiJsonHelper.parameterExists(SmsConstants.countrycode_paramname, element)) {
+			 final String countryCode = this.fromApiJsonHelper.extractStringNamed(SmsConstants.countrycode_paramname, element);
+				baseDataValidator.reset().parameter(SmsConstants.countrycode_paramname).value(countryCode).notBlank();
+				bridge.setCountryCode(countryCode);
+				
 		 }
 		 
 		 if (this.fromApiJsonHelper.parameterExists(SmsConstants.bridgeconfigurations_paramname, element)) {

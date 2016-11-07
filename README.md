@@ -2,7 +2,7 @@
 
 Steps to configure Message-Gateway
 
-1) Create tenant with http://host:9191/tenants/
+## Create tenant with http://host:9191/tenants/
 	method: POST
 	Request Body:
 	
@@ -13,7 +13,7 @@ Steps to configure Message-Gateway
 	
  This API will return an unique tenant app key. This key should not be shared with others. 
  
- 2) Create Twilio SMS Bridge with http://host:9191/smsbridges
+## Create Twilio SMS Bridge with http://host:9191/smsbridges
  	method: POST
  	HEADERS:
  		Fineract-Platform-TenantId:tenantId
@@ -38,7 +38,7 @@ Steps to configure Message-Gateway
 	
 This API will return Bridge Identifier by which you can use while sending SMS
 	
-3) Send SMS by using one of the provider with http://localhost:9191/sms
+## Send SMS by using one of the provider with http://localhost:9191/sms
 	Method: POST
 	HEADERS:
  		Fineract-Platform-TenantId:tenantId

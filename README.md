@@ -38,6 +38,7 @@ war file can be found in build/libs
 		"providerName": "Twilio Provider",
 		"providerDescription": "SMS Provider for promotional messages",
 		"providerKey":"Twilio",
+		"countryCode":"+91",
 		"bridgeConfigurations": [
 			{
 				"configName":"Provider_Account_Id",

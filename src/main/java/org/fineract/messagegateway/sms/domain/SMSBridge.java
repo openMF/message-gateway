@@ -43,7 +43,8 @@ public class SMSBridge extends AbstractPersistableCustom<Long> {
 
 	@Column(name = "provider_name", nullable = false)
 	private String providerName;
-
+	
+	@com.fasterxml.jackson.annotation.JsonIgnore
 	@Column(name = "country_code", nullable = false)
 	private String countryCode ; 
 	

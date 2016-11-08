@@ -47,19 +47,26 @@ public class InfoBipMessageProvider implements SMSProvider {
 	private static final Logger logger = LoggerFactory.getLogger(InfoBipMessageProvider.class);
 
 	private HashMap<String, SendMultipleTextualSmsAdvanced> restClients = new HashMap<>() ; //tenantId, twilio clients
-	 private final String callBackUrl ;
+	private final String callBackUrl ;
 	 
+	private final StringBuilder builder ;
+	  
 	@Autowired
 	public InfoBipMessageProvider(final HostConfig hostConfig) {
 		callBackUrl = String.format("%s://%s:%d/infobip/report/", hostConfig.getProtocol(),  hostConfig.getHostName(), hostConfig.getPort());
     	logger.info("Registering call back to twilio:"+callBackUrl);
+    	builder = new StringBuilder() ;
 	}
 
 	@Override
 	public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
 		SendMultipleTextualSmsAdvanced client = getRestClient(smsBridgeConfig) ;
 		Destination destination = new Destination();
-		destination.setTo(message.getMobileNumber());
+		builder.setLength(0);
+        builder.append(smsBridgeConfig.getCountryCode()) ;
+        builder.append(message.getMobileNumber()) ;
+        String mobile = builder.toString() ;
+		destination.setTo(mobile);
 		Message infoBipMessage = new Message();
 		infoBipMessage.setDestinations(Collections.singletonList(destination));
 		infoBipMessage.setText(message.getMessage());

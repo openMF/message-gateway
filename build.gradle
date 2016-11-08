@@ -45,7 +45,6 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
-    compile("org.hsqldb:hsqldb")
     compile("org.flywaydb:flyway-core")
     compile('org.apache.velocity:velocity:1.7')
     compile('com.squareup.okhttp:okhttp:2.0.0')
@@ -53,7 +52,7 @@ dependencies {
     compile('com.squareup.retrofit:retrofit:1.6.1')
     compile('com.twilio.sdk:twilio:7.1.0')
     compile('org.drizzle.jdbc:drizzle-jdbc:1.3')
-    compile('org.jsmpp:jsmpp:2.3.0')
+    compile('com.infobip:infobip-api-java-client:1.1.0')
     testCompile("org.springframework.boot:spring-boot-starter-test")
     
 }

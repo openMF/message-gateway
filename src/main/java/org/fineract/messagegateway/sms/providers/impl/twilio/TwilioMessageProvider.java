@@ -54,7 +54,7 @@ public class TwilioMessageProvider implements SMSProvider {
     @Autowired
     TwilioMessageProvider(final HostConfig hostConfig) {
     	builder = new StringBuilder() ;
-    	callBackUrl = String.format("%s://%s:%d/twilio/report/", hostConfig.getProtocol(),  hostConfig.getHostName(), hostConfig.getPort());
+    	callBackUrl = String.format("%s://%s:%d/infobip/report/", hostConfig.getProtocol(),  hostConfig.getHostName(), hostConfig.getPort());
     	logger.info("Registering call back to twilio:"+callBackUrl);
     }
 

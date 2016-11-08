@@ -53,27 +53,27 @@ public class SmsGatewayConfiguration {
 		    if (configurationData.getConfigValue() != null) {
     		    switch (configurationData.getConfigName()) {
     		        case DEVELOPMENT_MODE:
-    		            this.developmentMode = Boolean.valueOf(configurationData.getConfigValue());
+    		            this.developmentMode = false ;//Boolean.valueOf(configurationData.getConfigValue());
     		            break;
     		            
     		        case SMS_GATEWAY_SYSTEM_ID:
-    		            this.systemId = configurationData.getConfigValue();
+    		            this.systemId = "MIFOS" ;//configurationData.getConfigValue();
     		            break;
     		            
     		        case SMS_GATEWAY_HOSTNAME:
-    		            this.hostname = configurationData.getConfigValue();
+    		            this.hostname = "smpp3.infobip.com";//configurationData.getConfigValue();
     		            break;
     		            
     		        case SMS_GATEWAY_PORT:
-    		            this.portNumber = Integer.parseInt(configurationData.getConfigValue());
+    		            this.portNumber = 8888 ;//Integer.parseInt(configurationData.getConfigValue());
     		            break;
     		            
     		        case SMS_GATEWAY_PASSWORD:
-    		            this.password = configurationData.getConfigValue();
+    		            this.password = "A34x8M5q" ;//configurationData.getConfigValue();
     		            break;
     		            
     		        case ENABLE_OUTBOUND_MESSSAGE_SCHEDULER:
-    		            this.enableOutboundMessageScheduler = Boolean.valueOf(configurationData.getConfigValue());
+    		            this.enableOutboundMessageScheduler = true ;//Boolean.valueOf(configurationData.getConfigValue());
     		            break;
     		    }
 		    }

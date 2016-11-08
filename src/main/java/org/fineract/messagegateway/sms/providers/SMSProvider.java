@@ -18,12 +18,23 @@
  */
 package org.fineract.messagegateway.sms.providers;
 
+import java.util.Base64;
+
+import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
 
-public interface SMSProvider {
+public abstract class SMSProvider {
 	
-	public void sendMessage(final SMSBridge smsBridgeConfig, final SMSMessage message)
+	public abstract void sendMessage(final SMSBridge smsBridgeConfig, final SMSMessage message)
 	        throws MessageGatewayException ;
+	
+	protected String encodeBase64(final SMSBridge smsBridgeConfig) {
+		String tenant = smsBridgeConfig.getTenantId().toString() ;
+		String username = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_ACCOUNT_ID) ;
+    	String password = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_AUTH_TOKEN) ;
+        String userPass = username + ":" + password + ":" + tenant;
+        return Base64.getEncoder().encodeToString(userPass.getBytes());
+    }
 }

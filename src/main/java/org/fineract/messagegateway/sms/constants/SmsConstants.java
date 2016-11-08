@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.fineract.messagegateway.sms;
+package org.fineract.messagegateway.sms.constants;
 
 import java.util.Arrays;
 import java.util.HashSet;

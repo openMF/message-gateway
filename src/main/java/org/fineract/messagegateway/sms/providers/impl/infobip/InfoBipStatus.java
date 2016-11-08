@@ -21,47 +21,47 @@ package org.fineract.messagegateway.sms.providers.impl.infobip;
 
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 
-import com.twilio.rest.api.v2010.account.Message;
 
 public class InfoBipStatus {
 
-	public static SmsMessageStatusType smsStatus(final Message.Status twilioStatus) {
+	public static SmsMessageStatusType smsStatus(final String twilioStatus) {
 		SmsMessageStatusType smsStatus = SmsMessageStatusType.PENDING;
-		switch(twilioStatus.toString()) {
-		case "queued":
-		case "sending":
+		switch(twilioStatus) {
+		case "PENDING":
+		case "ACCEPTED":
 			smsStatus = SmsMessageStatusType.WAITING_FOR_REPORT ;
 			break ;
 		case "sent" :
 			smsStatus = SmsMessageStatusType.SENT ;
 				break ;
-		case "delivered":
+		case "DELIVERED":
 			smsStatus = SmsMessageStatusType.DELIVERED;
 			break ;
-		case "undelivered":
-		case "failed":
+		case "UNDELIVERABLE":
+		case "EXPIRED" :
+		case "REJECTED":
 			smsStatus = SmsMessageStatusType.FAILED ;
 			break ;
 		}
 		return smsStatus ;
 	}
 	
-	public static SmsMessageStatusType smsStatus(final String twilioStatus) {
+	public static SmsMessageStatusType smsStatus(final Integer infoBipStatus) {
 		SmsMessageStatusType smsStatus = SmsMessageStatusType.PENDING;
-		switch(twilioStatus) {
-		case "queued":
-		case "sending":
+		switch(infoBipStatus) {
+		case 0:
 			smsStatus = SmsMessageStatusType.WAITING_FOR_REPORT ;
-			break ;
-		case "sent" :
+		case 1:
 			smsStatus = SmsMessageStatusType.SENT ;
-				break ;
-		case "delivered":
-			smsStatus = SmsMessageStatusType.DELIVERED;
 			break ;
-		case "undelivered":
-		case "failed":
-			smsStatus = SmsMessageStatusType.FAILED ;
+		case 2:
+		case 4:
+		case 5:
+			smsStatus = SmsMessageStatusType.FAILED;
+			break ;
+			
+		case 3:
+			smsStatus = SmsMessageStatusType.DELIVERED;
 			break ;
 		}
 		return smsStatus ;

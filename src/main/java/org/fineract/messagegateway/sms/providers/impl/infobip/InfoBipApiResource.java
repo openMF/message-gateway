@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,16 +49,12 @@ public class InfoBipApiResource {
 	}
 	
 	@RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
-    public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @ModelAttribute final SMSReportResponse payload) {
+    public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @RequestBody final SMSReportResponse payload) {
     	SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
     	if(message != null) {
     		SMSReport report = payload.getResults().get(0) ;
-    		logger.info("Status Callback received from InfoBip for "+messageId+" with status:"+report.getStatus());
-    		logger.info("Status Callback received from InfoBip for "+messageId+" with messageid:"+report.getMessageId());
-    		logger.info("Status Callback received from InfoBip for "+messageId+" with groupname:"+report.getStatus().getGroupName());
-    		logger.info("Status Callback received from InfoBip for "+messageId+" with name:"+report.getStatus().getName());
-    		logger.info("Status Callback received from InfoBip for "+messageId+" with groupname:"+report.getStatus().getAction());
-    		message.setDeliveryStatus(SmsMessageStatusType.DELIVERED.getValue());
+    		logger.debug("Status Callback received from InfoBip for "+messageId+" with status:"+report.getStatus());
+    		message.setDeliveryStatus(InfoBipStatus.smsStatus(report.getStatus().getGroupId()).getValue());
     		this.smsOutboundMessageRepository.save(message) ;
     	}else {
     		logger.info("Message with Message id "+messageId+" Not found");

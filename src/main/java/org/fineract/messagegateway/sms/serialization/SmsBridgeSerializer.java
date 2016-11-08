@@ -28,7 +28,7 @@ import org.fineract.messagegateway.exception.PlatformApiDataValidationException;
 import org.fineract.messagegateway.helpers.ApiParameterError;
 import org.fineract.messagegateway.helpers.DataValidatorBuilder;
 import org.fineract.messagegateway.helpers.FromJsonHelper;
-import org.fineract.messagegateway.sms.SmsConstants;
+import org.fineract.messagegateway.sms.constants.SmsConstants;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSBridgeConfig;
 import org.fineract.messagegateway.tenants.domain.Tenant;

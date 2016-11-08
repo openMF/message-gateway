@@ -18,16 +18,15 @@
  */
 package org.fineract.messagegateway.sms.providers.impl.infobip;
 
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 
 import org.fineract.messagegateway.configuration.HostConfig;
+import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.providers.SMSProvider;
-import org.fineract.messagegateway.sms.providers.impl.twilio.TwilioMessageConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,7 @@ import infobip.api.model.sms.mt.send.SMSResponseDetails;
 import infobip.api.model.sms.mt.send.textual.SMSAdvancedTextualRequest;
 
 @Service(value = "InfoBip")
-public class InfoBipMessageProvider implements SMSProvider {
+public class InfoBipMessageProvider extends SMSProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(InfoBipMessageProvider.class);
 
@@ -61,12 +60,14 @@ public class InfoBipMessageProvider implements SMSProvider {
 	@Override
 	public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
 		String statusCallback = callBackUrl+message.getId() ;
+		//Based on message id, register call back. so that we get notification from Infobip about message status
 		SendMultipleTextualSmsAdvanced client = getRestClient(smsBridgeConfig) ;
 		Destination destination = new Destination();
 		builder.setLength(0);
         builder.append(smsBridgeConfig.getCountryCode()) ;
         builder.append(message.getMobileNumber()) ;
         String mobile = builder.toString() ;
+        logger.info("Sending SMS to " + mobile + " ...");
 		destination.setTo(mobile);
 		Message infoBipMessage = new Message();
 		infoBipMessage.setDestinations(Collections.singletonList(destination));
@@ -79,12 +80,8 @@ public class InfoBipMessageProvider implements SMSProvider {
 		SMSResponse response = client.execute(requestBody);
 		SMSResponseDetails sentMessageInfo = response.getMessages().get(0);
 		message.setExternalId(sentMessageInfo.getMessageId());
-		logger.info("Status Callback received from InfoBip for "+" with status:"+sentMessageInfo.getStatus());
-		logger.info("Status Callback received from InfoBip for "+" with messageid:"+sentMessageInfo.getMessageId());
-		logger.info("Status Callback received from InfoBip for "+" with groupname:"+sentMessageInfo.getStatus().getGroupName());
-		logger.info("Status Callback received from InfoBip for "+" with name:"+sentMessageInfo.getStatus().getName());
-		logger.info("Status Callback received from InfoBip for "+" with groupname:"+sentMessageInfo.getStatus().getAction());
-		//message.setDeliveryStatus(sentMessageInfo.getStatus().);
+		message.setDeliveryStatus(InfoBipStatus.smsStatus(sentMessageInfo.getStatus().getGroupId()).getValue());
+		logger.debug("InfoBipMessageProvider.sendMessage():"+InfoBipStatus.smsStatus(sentMessageInfo.getStatus().getGroupId()).getValue());
 	}
 	
 	
@@ -95,22 +92,14 @@ public class InfoBipMessageProvider implements SMSProvider {
 			client = this.get(smsBridge) ;
 			this.restClients.put(authorizationKey, client) ;
 		}
-	    	return client ;
+	    return client ;
 	 }
 	 
 	SendMultipleTextualSmsAdvanced get(final SMSBridge smsBridgeConfig) {
     	logger.debug("Creating a new InfoBip Client ....");
-    	String userName = smsBridgeConfig.getConfigValue(TwilioMessageConstants.PROVIDER_ACCOUNT_ID) ;
-    	String password = smsBridgeConfig.getConfigValue(TwilioMessageConstants.PROVIDER_AUTH_TOKEN) ;
+    	String userName = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_ACCOUNT_ID) ;
+    	String password = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_AUTH_TOKEN) ;
     	final SendMultipleTextualSmsAdvanced client = new SendMultipleTextualSmsAdvanced(new BasicAuthConfiguration(userName, password));
         return client;
-    }
-	
-	private String encodeBase64(final SMSBridge smsBridgeConfig) {
-		String tenant = smsBridgeConfig.getTenantId().toString() ;
-		String username = smsBridgeConfig.getConfigValue(TwilioMessageConstants.PROVIDER_ACCOUNT_ID) ;
-    	String password = smsBridgeConfig.getConfigValue(TwilioMessageConstants.PROVIDER_AUTH_TOKEN) ;
-        String userPass = username + ":" + password + ":" + tenant;
-        return Base64.getEncoder().encodeToString(userPass.getBytes());
     }
 }

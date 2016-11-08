@@ -24,4 +24,8 @@ public interface MessageGatewayConstants {
 	
 	String TENANT_APPKEY_HEADER =  "Fineract-Tenant-App-Key" ;
 	
+	
+	String PROVIDER_ACCOUNT_ID = "Provider_Account_Id" ;
+	
+	String PROVIDER_AUTH_TOKEN = "Provider_Auth_Token" ;
 }

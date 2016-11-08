@@ -18,11 +18,11 @@
  */
 package org.fineract.messagegateway.sms.providers.impl.twilio;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
 import org.fineract.messagegateway.configuration.HostConfig;
+import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
@@ -40,11 +40,11 @@ import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.type.PhoneNumber;
 
 @Service(value="Twilio")
-public class TwilioMessageProvider implements SMSProvider {
+public class TwilioMessageProvider extends SMSProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TwilioMessageProvider.class);
 
-    private HashMap<Object, ArrayList<TwilioRestClient>> restClients = new HashMap<>() ; //tenantId, twilio clients
+    private HashMap<String, TwilioRestClient> restClients = new HashMap<>() ; //tenantId, twilio clients
     
     
     private final String callBackUrl ;
@@ -90,32 +90,19 @@ public class TwilioMessageProvider implements SMSProvider {
     }
     
     private TwilioRestClient getRestClient(final SMSBridge smsBridge) {
-    	TwilioRestClient client = null ;
-    	ArrayList<TwilioRestClient> tenantsClients = this.restClients.get(smsBridge.getTenantId()) ;
-    	if(tenantsClients == null) {
-    		tenantsClients = new ArrayList<>() ; 
-    		client = this.get(smsBridge) ;
-    		tenantsClients.add(client) ;
-    		this.restClients.put(smsBridge.getTenantId(), tenantsClients) ;
-    	}else {
-    		for(TwilioRestClient client1: tenantsClients) {
-    			if(client1.getAccountSid().equals(smsBridge.getConfigValue(TwilioMessageConstants.PROVIDER_ACCOUNT_ID))) {
-    				client = client1 ;
-    				break ;
-    			}
-    		}
-    		if(client == null) {
-    			client = this.get(smsBridge) ;
-        		tenantsClients.add(client) ;
-    		}
-    	}
-    	return client ;
+    	String authorizationKey = encodeBase64(smsBridge) ;
+    	TwilioRestClient client = this.restClients.get(authorizationKey) ;
+		if(client == null) {
+			client = this.get(smsBridge) ;
+			this.restClients.put(authorizationKey, client) ;
+		}
+	    return client ;
     }
     
     TwilioRestClient get(final SMSBridge smsBridgeConfig) {
     	logger.debug("Creating a new Twilio Client ....");
-    	String providerAccountId = smsBridgeConfig.getConfigValue(TwilioMessageConstants.PROVIDER_ACCOUNT_ID) ;
-    	String providerAuthToken = smsBridgeConfig.getConfigValue(TwilioMessageConstants.PROVIDER_AUTH_TOKEN) ;
+    	String providerAccountId = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_ACCOUNT_ID) ;
+    	String providerAuthToken = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_AUTH_TOKEN) ;
         final TwilioRestClient client = new TwilioRestClient.Builder(providerAccountId, providerAuthToken).build();
         return client;
     }

@@ -54,12 +54,13 @@ public class InfoBipMessageProvider implements SMSProvider {
 	@Autowired
 	public InfoBipMessageProvider(final HostConfig hostConfig) {
 		callBackUrl = String.format("%s://%s:%d/infobip/report/", hostConfig.getProtocol(),  hostConfig.getHostName(), hostConfig.getPort());
-    	logger.info("Registering call back to twilio:"+callBackUrl);
+    	logger.info("Registering call back to InfoBip:"+callBackUrl);
     	builder = new StringBuilder() ;
 	}
 
 	@Override
 	public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
+		String statusCallback = callBackUrl+message.getId() ;
 		SendMultipleTextualSmsAdvanced client = getRestClient(smsBridgeConfig) ;
 		Destination destination = new Destination();
 		builder.setLength(0);
@@ -70,12 +71,19 @@ public class InfoBipMessageProvider implements SMSProvider {
 		Message infoBipMessage = new Message();
 		infoBipMessage.setDestinations(Collections.singletonList(destination));
 		infoBipMessage.setText(message.getMessage());
-		infoBipMessage.setNotifyUrl(callBackUrl);
+		infoBipMessage.setNotifyUrl(statusCallback);
+		infoBipMessage.setNotifyContentType("application/json") ;
+		infoBipMessage.setNotify(true) ;
 		SMSAdvancedTextualRequest requestBody = new SMSAdvancedTextualRequest();
 		requestBody.setMessages(Collections.singletonList(infoBipMessage));
 		SMSResponse response = client.execute(requestBody);
 		SMSResponseDetails sentMessageInfo = response.getMessages().get(0);
 		message.setExternalId(sentMessageInfo.getMessageId());
+		logger.info("Status Callback received from InfoBip for "+" with status:"+sentMessageInfo.getStatus());
+		logger.info("Status Callback received from InfoBip for "+" with messageid:"+sentMessageInfo.getMessageId());
+		logger.info("Status Callback received from InfoBip for "+" with groupname:"+sentMessageInfo.getStatus().getGroupName());
+		logger.info("Status Callback received from InfoBip for "+" with name:"+sentMessageInfo.getStatus().getName());
+		logger.info("Status Callback received from InfoBip for "+" with groupname:"+sentMessageInfo.getStatus().getAction());
 		//message.setDeliveryStatus(sentMessageInfo.getStatus().);
 	}
 	

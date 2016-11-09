@@ -20,7 +20,6 @@ package org.fineract.messagegateway.sms.providers.impl.infobip;
 
 import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
-import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

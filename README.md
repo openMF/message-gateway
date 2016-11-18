@@ -38,7 +38,33 @@ war file can be found in build/libs
 		"providerName": "Twilio Provider",
 		"providerDescription": "SMS Provider for promotional messages",
 		"providerKey":"Twilio",
-		"countryCode":"+91",
+		"countryCode":"+xx",
+		"bridgeConfigurations": [
+			{
+				"configName":"Provider_Account_Id",
+				"configValue":"xxxxx"
+			},
+			{
+			"configName":"Provider_Auth_Token",
+			"configValue":"xxxxx"
+			}
+		]
+	}
+	
+This API will return Bridge Identifier by which you can use while sending SMS
+
+#### Create Infobip SMS Bridge with http://host:9191/smsbridges
+ 	method: POST
+ 	HEADERS:
+ 		Fineract-Platform-TenantId:tenantId
+ 		Fineract-Tenant-App-Key:generatedAppkeywhilecreatingtenant
+ 	Request Body:
+ 	{
+		"phoneNo": "+xxxxxxxxxxx",
+		"providerName": "Infobip Provider",
+		"providerDescription": "SMS Provider for transactional messages",
+		"providerKey":"InfoBip",
+		"countryCode":"+xx",
 		"bridgeConfigurations": [
 			{
 				"configName":"Provider_Account_Id",
@@ -62,7 +88,7 @@ This API will return Bridge Identifier by which you can use while sending SMS
  		
 		[{
 			"internalId":"55",
-			"mobileNumber":"+91xxxxxxxxxx",
+			"mobileNumber":"+xxxxxxxxxxxx",
 			"message":"Hello from Fineract",
 			"providerId":"2"
 		}]

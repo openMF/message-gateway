@@ -93,4 +93,4 @@ This API will return Bridge Identifier by which you can use while sending SMS
 			"providerId":"2"
 		}]
 
-Note: While sending SMS, don't include country code as part of each message. This country code will be prefixed by taking value from provider details
+Note: While sending SMS, don't include country code as part of each message. This country code will be prefixed by taking value from provider details. You need configure host-address: [your public ip on which message-gateway is running] in application.yml

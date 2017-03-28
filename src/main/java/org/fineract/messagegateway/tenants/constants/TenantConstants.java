@@ -16,15 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.fineract.messagegateway.exception;
+package org.fineract.messagegateway.tenants.constants;
 
-public class SecurityException extends RuntimeException {
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-	private SecurityException(final String msg) {
-		super(msg);
-	}
+import org.fineract.messagegateway.constants.MessageGatewayConstants;
 
-	public static SecurityException tenantAlreadyExists(final String tenant) {
-		return new SecurityException("Tenant Already existing with "+tenant+" identifier");
-	}
+public interface TenantConstants extends MessageGatewayConstants {
+
+	String TENANTS_RESOURCE_NAME = "tenants";
+
+	String TENANT_ID = "tenantId";
+	String TENANT_DESCRIPTION = "description";
+
+
+	// list of allowed parameters for tenant creation request
+	Set<String> CREATE_REQUEST_PARAMETERS = new HashSet<>(Arrays.asList(TENANT_ID, TENANT_DESCRIPTION));
+
 }

@@ -22,6 +22,7 @@ import org.fineract.messagegateway.service.SecurityService;
 import org.fineract.messagegateway.tenants.domain.Tenant;
 import org.fineract.messagegateway.tenants.exception.TenantNotFoundException;
 import org.fineract.messagegateway.tenants.repository.TenantRepository;
+import org.fineract.messagegateway.tenants.serialization.TenantSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,15 +32,19 @@ public class TenantsService {
 	private final TenantRepository tenantRepository ;
 	
 	private final SecurityService securityService ;
-	
+
+	private final TenantSerializer tenantSerializer;
+
 	@Autowired
 	public TenantsService(final TenantRepository tenantRepository,
-			final SecurityService securityService) {
+				final SecurityService securityService, TenantSerializer tenantSerializer) {
 		this.tenantRepository = tenantRepository ;
 		this.securityService = securityService ;
+		this.tenantSerializer = tenantSerializer;
 	}
-	
-	public String createTenant(final Tenant tenant) {
+
+	public String createTenant(final String requestJson) {
+		Tenant tenant = tenantSerializer.validateCreateRequest(requestJson);
 		tenant.setTenantAppKey(this.securityService.generateApiKey(tenant.getTenantId()));
 		this.tenantRepository.save(tenant) ;
 		return tenant.getTenantAppKey() ;

@@ -71,6 +71,7 @@ public class InfoBipMessageProvider extends SMSProvider {
 		destination.setTo(mobile);
 		Message infoBipMessage = new Message();
 		infoBipMessage.setDestinations(Collections.singletonList(destination));
+		infoBipMessage.setFrom(smsBridgeConfig.getPhoneNo());
 		infoBipMessage.setText(message.getMessage());
 		infoBipMessage.setNotifyUrl(statusCallback);
 		infoBipMessage.setNotifyContentType("application/json") ;

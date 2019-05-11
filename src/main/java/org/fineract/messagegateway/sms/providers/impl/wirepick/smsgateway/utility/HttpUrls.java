@@ -28,11 +28,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 
-/*	import org.apache.commons.httpclient.HttpClient;*/
-import org.apache.http.HttpClient
+/*	import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus; 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PostMethod; */
+
+import org.apache.http.HttpClient;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.methods.PostMethod;
 
 /* import sms.wirepick.smsgateway.model.MsgStatus; */
 import org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.model.MsgStatus;

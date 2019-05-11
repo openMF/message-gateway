@@ -27,11 +27,14 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
+/*
 import org.apache.commons.httpclient.HttpClient; 
 import org.apache.commons.httpclient.HttpStatus; 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod; 
+import org.apache.commons.httpclient.methods.PostMethod; */
+
+import org.apache.commons.httpclient.jar;
+
 
 
 

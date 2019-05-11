@@ -33,10 +33,10 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod; */
 
-import org.apache.http.HttpClient;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.methods.PostMethod;
+import org.apache.commons.http.httpclient;
+import org.apache.commons.http.httpclient.HttpStatus; 
+import org.apache.commons.http.httpclient.NameValuePair;
+import org.apache.commons.http.httpclient.methods.PostMethod; 
 
 /* import sms.wirepick.smsgateway.model.MsgStatus; */
 import org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.model.MsgStatus;

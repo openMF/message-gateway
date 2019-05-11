@@ -16,47 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* package sms.wirepick.smsgateway.model; */
+/* package sms.wirepick.smsgateway; */
 
-package org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.model;
+package org.fineract.messagegateway.sms.providers.impl.wirepick.Constants;
 
-public class MsgStatus {
+
+public class ConstantValues {
+
+	public static final String SMS_CLIENT_AFFILIATE = "999";
+	public static final String SMS_TAG = "api";
+	public static final String SMS_CLIENT_SENDER_ID = "senderIdfromWirePick";
+	public static final String SMS_CLIENT_PWD = "passwordfromwirepick";
+	public static final String SMS_CLIENT_ID = "clientIdfromwirepick";
 	
-	private String msgid;
-	private String phone;
-	private String status;
-	private int messageId;
-
-	public String getMsgid() {
-		return msgid;
-	}
-
-	public void setMsgid(String msgid) {
-		this.msgid = msgid;
-	}
-
-	public String getPhone() {
-		return phone;
-	}
-
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public int getMessageId() {
-		return messageId;
-	}
-
-	public void setMessageId(int messageId) {
-		this.messageId = messageId;
-	}
-
 }

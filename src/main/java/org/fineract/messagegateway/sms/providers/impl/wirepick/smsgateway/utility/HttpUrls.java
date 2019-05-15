@@ -33,9 +33,6 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod; 
 
-import org.apache.commons.httpclient.jar;
-
-
 
 
 /* import sms.wirepick.smsgateway.model.MsgStatus; */

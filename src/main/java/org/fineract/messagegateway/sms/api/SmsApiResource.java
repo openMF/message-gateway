@@ -57,7 +57,6 @@ public class SmsApiResource {
     		@RequestBody final List<SMSMessage> payload) {
         
     	/* this.smsMessageService.sendShortMessage(tenantId, appKey, payload); */
-
         WirepickSMS sms = new WirepickSMS() ;
         /* List<SMSmessage> list = new ArrayList<SMSmessage>() ; */
         for(SMSMessage smessage : payload) {

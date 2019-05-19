@@ -25,8 +25,8 @@ public class ConstantValues {
 
 	public static final String SMS_CLIENT_AFFILIATE = "999";
 	public static final String SMS_TAG = "api";
-	public static final String SMS_CLIENT_SENDER_ID = "ACTB";
-	public static final String SMS_CLIENT_PWD = "ACTB@123$";
-	public static final String SMS_CLIENT_ID = "ACTB";
+	public static final String SMS_CLIENT_SENDER_ID = "senderIdfromWirePick";
+	public static final String SMS_CLIENT_PWD = "passwordfromwirepick";
+	public static final String SMS_CLIENT_ID = "clientIdfromwirepick";
 	
 }

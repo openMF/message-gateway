@@ -56,10 +56,8 @@ public class SmsApiResource {
     		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
     		@RequestBody final List<SMSMessage> payload) {
         
-    	/* this.smsMessageService.sendShortMessage(tenantId, appKey, payload); */
-        WirepickSMS sms = new WirepickSMS() ;
-        /* List<SMSmessage> list = new ArrayList<SMSmessage>() ; */
-        for(SMSMessage smessage : payload) {
+    	WirepickSMS sms = new WirepickSMS() ;
+         for(SMSMessage smessage : payload) {
             WpkClientConfig config = new WpkClientConfig(ConstantValues.SMS_CLIENT_ID, ConstantValues.SMS_CLIENT_PWD, 
                     ConstantValues.SMS_CLIENT_AFFILIATE,smessage.getMobileNumber() , smessage.getMessage(), ConstantValues.SMS_CLIENT_SENDER_ID, ConstantValues.SMS_TAG) ; 
             try {

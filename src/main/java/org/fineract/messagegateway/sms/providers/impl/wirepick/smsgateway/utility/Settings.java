@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* package sms.wirepick.smsgateway.Utility; */
 
 package org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.Utility;
 
@@ -40,9 +39,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-/*import sms.wirepick.smsgateway.model.MsgStatus;*/
 import org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.model.MsgStatus;
-/*import sms.wirepick.smsgateway.model.WpkClientConfig;*/
 import org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.model.WpkClientConfig;
 
 public class Settings {

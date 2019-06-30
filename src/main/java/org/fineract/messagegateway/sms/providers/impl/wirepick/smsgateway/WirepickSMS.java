@@ -16,20 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* package sms.wirepick.smsgateway; */
 
 package org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway;
 
 import org.apache.commons.httpclient.NameValuePair;
-
-/* import sms.wirepick.smsgateway.Utility.HttpUrls; */
 import org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.Utility.*;
-
-/* import sms.wirepick.smsgateway.Utility.Settings; */
-
-/* import sms.wirepick.smsgateway.model.MsgStatus; */
 import org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.model.*;
-/*import sms.wirepick.smsgateway.model.WpkClientConfig; */
 
 
 public class WirepickSMS {

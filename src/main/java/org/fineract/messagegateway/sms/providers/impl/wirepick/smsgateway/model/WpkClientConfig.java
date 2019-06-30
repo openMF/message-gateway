@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* package sms.wirepick.smsgateway.model; */
+
 package org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.model;
 
 public class WpkClientConfig {

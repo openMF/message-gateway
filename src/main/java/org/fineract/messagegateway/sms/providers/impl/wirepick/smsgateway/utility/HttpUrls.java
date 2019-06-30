@@ -18,7 +18,7 @@
  * under the License.
  */
 
-/* package sms.wirepick.smsgateway.Utility;*/
+
 package org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.Utility;
 
 import java.io.StringReader;
@@ -32,10 +32,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus; 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod; 
-
-
-
-/* import sms.wirepick.smsgateway.model.MsgStatus; */
 import org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.model.MsgStatus;
 
 public class HttpUrls {

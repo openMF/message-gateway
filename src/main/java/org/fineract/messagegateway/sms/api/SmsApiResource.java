@@ -57,7 +57,7 @@ public class SmsApiResource {
     		@RequestBody final List<SMSMessage> payload) {
         
     	WirepickSMS sms = new WirepickSMS() ;
-         for(SMSMessage smessage : payload) {
+         for(SMSMessage sMessage : payload) {
             WpkClientConfig config = new WpkClientConfig(ConstantValues.SMS_CLIENT_ID, ConstantValues.SMS_CLIENT_PWD, 
                     ConstantValues.SMS_CLIENT_AFFILIATE,smessage.getMobileNumber() , smessage.getMessage(), ConstantValues.SMS_CLIENT_SENDER_ID, ConstantValues.SMS_TAG) ; 
             try {

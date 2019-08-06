@@ -16,10 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* package sms.wirepick.smsgateway; */
 
 package org.fineract.messagegateway.sms.providers.impl.wirepick.Constants;
-
 
 public class ConstantValues {
 
@@ -28,5 +26,4 @@ public class ConstantValues {
 	public static final String SMS_CLIENT_SENDER_ID = "senderIdfromWirePick";
 	public static final String SMS_CLIENT_PWD = "passwordfromwirepick";
 	public static final String SMS_CLIENT_ID = "clientIdfromwirepick";
-	
-}
+	}

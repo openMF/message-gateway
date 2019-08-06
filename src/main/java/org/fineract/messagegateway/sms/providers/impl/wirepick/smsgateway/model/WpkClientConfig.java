@@ -88,9 +88,4 @@ public class WpkClientConfig {
 	public void setTag(String tag) {
 		this.tag = tag;
 	}
-	
-	
-	
-	
-
 }

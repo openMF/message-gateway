@@ -194,13 +194,6 @@ public class Settings {
 		{
 			nameValuePairs[6] = new NameValuePair("tag",API) ;
 		}
-		
-		
 		return nameValuePairs;
-		
-		
 	}
-	
-	
-
 }

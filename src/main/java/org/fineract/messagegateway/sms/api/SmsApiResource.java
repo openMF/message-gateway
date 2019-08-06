@@ -59,7 +59,7 @@ public class SmsApiResource {
     	WirepickSMS sms = new WirepickSMS() ;
          for(SMSMessage sMessage : payload) {
             WpkClientConfig config = new WpkClientConfig(ConstantValues.SMS_CLIENT_ID, ConstantValues.SMS_CLIENT_PWD, 
-                    ConstantValues.SMS_CLIENT_AFFILIATE,smessage.getMobileNumber() , smessage.getMessage(), ConstantValues.SMS_CLIENT_SENDER_ID, ConstantValues.SMS_TAG) ; 
+                    ConstantValues.SMS_CLIENT_AFFILIATE, smessage.getMobileNumber() ,smessage.getMessage(), ConstantValues.SMS_CLIENT_SENDER_ID, ConstantValues.SMS_TAG) ; 
             try {
                 MsgStatus msgStatus =  sms.SendPOSTSMS(config) ;
                 System.out.println(msgStatus.getMessageId());

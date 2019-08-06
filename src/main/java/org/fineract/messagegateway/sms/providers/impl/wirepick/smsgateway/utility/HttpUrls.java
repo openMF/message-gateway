@@ -72,7 +72,6 @@ public class HttpUrls {
 		return null;
 	}
 
-
 	public static MsgStatus sendByUrlHttpConnection(String url) throws Exception {
 
         HttpURLConnection con = null;
@@ -104,6 +103,4 @@ public class HttpUrls {
         }
 
     }
-
-
 }

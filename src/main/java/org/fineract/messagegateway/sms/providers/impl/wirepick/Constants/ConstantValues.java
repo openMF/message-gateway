@@ -16,17 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* package sms.wirepick.smsgateway; */
 
 package org.fineract.messagegateway.sms.providers.impl.wirepick.Constants;
-
 
 public class ConstantValues {
 
 	public static final String SMS_CLIENT_AFFILIATE = "999";
 	public static final String SMS_TAG = "api";
+<<<<<<< HEAD
 	public static final String SMS_CLIENT_SENDER_ID = "ACTB";
 	public static final String SMS_CLIENT_PWD = "Actb@123";
 	public static final String SMS_CLIENT_ID = "ACTB";
 	
 }
+=======
+	public static final String SMS_CLIENT_SENDER_ID = "senderIdfromWirePick";
+	public static final String SMS_CLIENT_PWD = "passwordfromwirepick";
+	public static final String SMS_CLIENT_ID = "clientIdfromwirepick";
+	}
+>>>>>>> 98822617d6be009196c1d0c1b19f31a6e79251af

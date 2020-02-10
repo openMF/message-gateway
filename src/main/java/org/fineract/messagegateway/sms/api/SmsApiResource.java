@@ -38,7 +38,6 @@ import org.fineract.messagegateway.sms.providers.impl.wirepick.Constants.*;
 import org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.*;
 import org.fineract.messagegateway.sms.providers.impl.wirepick.smsgateway.model.*;
 
-
 @RestController
 @RequestMapping("/sms")
 public class SmsApiResource {
@@ -56,16 +55,18 @@ public class SmsApiResource {
     		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
     		@RequestBody final List<SMSMessage> payload) {
         
-    	/* this.smsMessageService.sendShortMessage(tenantId, appKey, payload); */
-        WirepickSMS sms = new WirepickSMS() ;
-        /* List<SMSmessage> list = new ArrayList<SMSmessage>() ; */
-        for(SMSMessage smessage : payload) {
+    	WirepickSMS sms = new WirepickSMS() ;
+         for(SMSMessage sMessage : payload) {
             WpkClientConfig config = new WpkClientConfig(ConstantValues.SMS_CLIENT_ID, ConstantValues.SMS_CLIENT_PWD, 
-                    ConstantValues.SMS_CLIENT_AFFILIATE,smessage.getMobileNumber() , smessage.getMessage(), ConstantValues.SMS_CLIENT_SENDER_ID, ConstantValues.SMS_TAG) ; 
+                    ConstantValues.SMS_CLIENT_AFFILIATE, smessage.getMobileNumber() ,smessage.getMessage(), ConstantValues.SMS_CLIENT_SENDER_ID, ConstantValues.SMS_TAG) ; 
             try {
                 MsgStatus msgStatus =  sms.SendPOSTSMS(config) ;
                 System.out.println(msgStatus.getMessageId());
+<<<<<<< HEAD
             } catch (Exception e) { 
+=======
+            } catch (Exception e) { " Message not sent please make sure your ClientID,TAG and Password are correct. Alse make sure the Phone number includes the international code without the plus sign" 
+>>>>>>> 98822617d6be009196c1d0c1b19f31a6e79251af
             }
         }
 

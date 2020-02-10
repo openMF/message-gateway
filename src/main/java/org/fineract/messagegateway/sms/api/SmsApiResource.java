@@ -65,7 +65,7 @@ public class SmsApiResource {
             try {
                 MsgStatus msgStatus =  sms.SendPOSTSMS(config) ;
                 System.out.println(msgStatus.getMessageId());
-            } catch (Exception e) {
+            } catch (Exception e) { 
             }
         }
 

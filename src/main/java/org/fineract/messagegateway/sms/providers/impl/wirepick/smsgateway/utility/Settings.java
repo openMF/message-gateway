@@ -54,7 +54,7 @@ public class Settings {
 	private static final String PHONE = "phone";
 	private static final String MSGID = "msgid";
 	private static final String UTF_8 = "UTF-8";
-	public static final String HOST = "https://sms.wirepick.com/httpsms/send" ; 
+	public static final String HOST = "https://ebridgeafrica.com" ; 
 	private static final String DEFAULT_AFFILIATE = "999" ; 
 	
 	public static MsgStatus parseWirepickResultXML(InputStream stream) throws Exception, IOException  {

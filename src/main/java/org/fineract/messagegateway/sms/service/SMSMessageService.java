@@ -172,7 +172,9 @@ public class SMSMessageService {
 			Integer totalPageSize = 0;
 			do {
 				PageRequest pageRequest = new PageRequest(page, initialSize);
+				logger.info("Reading Pending Messages on bootup.....");
 				Page<SMSMessage> messages = this.smsOutboundMessageRepository.findByDeliveryStatus(SmsMessageStatusType.PENDING.getValue(), pageRequest) ;
+				logger.info("Pending Messages size.....{}", messages.getTotalElements());
 				page++;
 				totalPageSize = messages.getTotalPages();
 				this.smsProviderFactory.sendShortMessage(messages.getContent());

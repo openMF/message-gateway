@@ -86,6 +86,7 @@ public class SMSProviderFactory implements ApplicationContextAware {
 	
 	public void sendShortMessage(final Collection<SMSMessage> messages) {
 		for(SMSMessage message: messages) {
+			logger.info("Sending message....{}", message.getId());
 			SMSBridge bridge = this.smsBridgeRepository.findByIdAndTenantId(message.getBridgeId(),
 					message.getTenantId());
 			SMSProvider provider = null;
@@ -93,6 +94,7 @@ public class SMSProviderFactory implements ApplicationContextAware {
 				if (bridge == null) {
 					throw new SMSBridgeNotFoundException(message.getBridgeId());
 				}
+				logger.info("Finding provider....{}", bridge.getProviderKey());
 				provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey()) ;
 				if (provider == null)
 					throw new ProviderNotDefinedException();

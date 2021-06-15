@@ -1,3 +1,7 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
+-- noinspection SqlDialectInspectionForFile
+
 --
 -- Licensed to the Apache Software Foundation (ASF) under one
 -- or more contributor license agreements. See the NOTICE file
@@ -46,8 +50,8 @@ CREATE TABLE m_outbound_messages (
   source_address	      VARCHAR(100)                                    NULL DEFAULT NULL,
   sms_bridge_id           BIGINT(20)                                      NOT NULL,
   mobile_number           VARCHAR(255)                                    NOT NULL,
-  submitted_on_date       TIMESTAMP                                       NOT NULL,
   delivered_on_date       TIMESTAMP                                       NOT NULL,
+  submitted_on_date       TIMESTAMP                                       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   delivery_status	      INT(3)										  NOT NULL,
   message		          VARCHAR(4096)                                   NOT NULL,
   CONSTRAINT `m_outbound_messages_1` FOREIGN KEY (`sms_bridge_id`) REFERENCES `m_sms_bridge` (`id`)

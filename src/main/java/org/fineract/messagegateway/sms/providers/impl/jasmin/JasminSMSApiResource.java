@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/jasminsms")
 public class JasminSMSApiResource {
@@ -57,7 +59,8 @@ private static final Logger logger = LoggerFactory.getLogger(JasminSMSApiResourc
     		@RequestParam("dlvrd") Integer dlvrd,
     		@RequestParam("err") Integer err,
     		@RequestParam("text") String text) {
-    	SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
+    	Optional<SMSMessage> optMessage = this.smsOutboundMessageRepository.findById(messageId) ;
+		SMSMessage message = optMessage.orElse(null);
     	if(message != null) {
     		logger.info("Status Callback received from JasminSMS for "+messageId+" with status:"+messageStatus);
     		message.setDeliveryStatus(smsStatus(messageStatus).getValue());

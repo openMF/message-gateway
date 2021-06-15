@@ -19,3 +19,14 @@ repos/
 smsmoduledb.*
 
 !gradle/wrapper/gradle-wrapper.jar
+
+######################
+# Mac OSX
+######################
+.DS_Store
+.svn
+
+######################
+# jenv
+######################
+.java-version

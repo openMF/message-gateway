@@ -32,7 +32,7 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 public abstract class AbstractPersistableCustom<PK extends Serializable> implements Persistable<PK> {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected PK id;
 
 	/*

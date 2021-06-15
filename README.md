@@ -1,16 +1,39 @@
 # message-gateway
 
+## Development
+To start your in dev mode, run:
+```
+./gradlew bootRun
+```
 ## Build set up
-##### To create standalone application:
-  ./gradlew clean build 
+To create standalone application run:
+
+```
+./gradlew clean build 
+```
+You can also create a standalone application by running:
+```
+./gradlew clean bootJar 
+```
+
 ##### To run 
-  cd build/lib
-  
-  java -jar message-gateway-0.0.1.jar
+
+```
+cd build/lib
+
+java -jar message-gateway-0.0.1.jar
+```
+
+You can also run the application without packaging 
+```
+./gradlew bootRun
+```
 
 ##### To create deployable war:
+```
 ./gradlew clean build -Pprofile=deployable
 
+```
 war file can be found in build/libs
  
 

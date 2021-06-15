@@ -1,4 +1,4 @@
 jar {
-    baseName = 'message-gateway'
-    version = '0.0.1'
+    archiveBaseName = 'message-gateway'
+    archiveVersion = '0.0.1'
 }

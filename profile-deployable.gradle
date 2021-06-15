@@ -10,5 +10,5 @@ war {
 }
 
 dependencies {
-    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat:${springBootVersion}")
 }

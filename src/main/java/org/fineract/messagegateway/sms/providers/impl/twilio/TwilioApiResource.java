@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/twilio")
 public class TwilioApiResource {
@@ -46,7 +48,8 @@ public class TwilioApiResource {
 	
 	@RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/x-www-form-urlencoded"}, produces = {"application/x-www-form-urlencoded"})
     public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @ModelAttribute final TwilioReponseData payload) {
-    	SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
+		Optional<SMSMessage> optMessage = this.smsOutboundMessageRepository.findById(messageId) ;
+		SMSMessage message = optMessage.orElse(null);
     	if(message != null) {
     		logger.info("Status Callback received from Twilio for "+messageId+" with status:"+payload.getMessageStatus());
     		message.setDeliveryStatus(TwilioStatus.smsStatus(payload.getMessageStatus()).getValue());

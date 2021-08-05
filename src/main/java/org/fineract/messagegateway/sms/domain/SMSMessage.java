@@ -68,6 +68,9 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 	@Column(name = "sms_bridge_id", nullable = false)
 	private Long bridgeId;
 
+	@Column(name = "response")
+	private String response;
+
 	protected SMSMessage() {
 		
 	}
@@ -187,7 +190,15 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 	public Integer getDeliveryStatus() {
 		return this.deliveryStatus ;
 	}
-	
+
+	public String getResponse() {
+		return response;
+	}
+
+	public void setResponse(String response) {
+		this.response = response;
+	}
+
 	@Override
     public String toString() {
         return "SmsOutboundMessage [externalId=" + externalId + ", internalId=" + internalId

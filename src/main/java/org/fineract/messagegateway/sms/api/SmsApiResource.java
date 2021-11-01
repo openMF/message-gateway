@@ -53,7 +53,7 @@ public class SmsApiResource {
     	this.smsMessageService.sendShortMessage(tenantId, appKey, payload);
        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
-    
+
     @RequestMapping(value = "/report", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<Collection<DeliveryStatusData>> getDeliveryStatus(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
     		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 

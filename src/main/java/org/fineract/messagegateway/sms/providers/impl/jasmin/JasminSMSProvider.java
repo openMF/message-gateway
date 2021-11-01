@@ -32,7 +32,9 @@ import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.fineract.messagegateway.sms.providers.SMSProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +56,7 @@ public class JasminSMSProvider extends SMSProvider {
     private final String callBackUrl ;
     
     @Autowired
-	public JasminSMSProvider(final HostConfig hostConfig) {
+		public JasminSMSProvider(final HostConfig hostConfig) {
 		callBackUrl = String.format("%s://%s:%d/jasminsms/report/", hostConfig.getProtocol(),  hostConfig.getHostName(), hostConfig.getPort());
     	logger.info("Registering call back to jasminsms:"+callBackUrl);
 	}
@@ -63,11 +65,11 @@ public class JasminSMSProvider extends SMSProvider {
 	@Override
 	public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
 		logger.info("Reached Jasmin Provider...");
-
 		OkHttpClient okHttpClient = getRestClient(smsBridgeConfig);
 		String baseURL = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_URL);
     	String providerAccountId = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_ACCOUNT_ID) ;
     	String providerAuthToken = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_AUTH_TOKEN) ;
+    	String sender = smsBridgeConfig.getConfigValue(MessageGatewayConstants.SENDER_NAME);
     	logger.info("Base URL.....{}", baseURL);
 		try {
 			URI uri = new URIBuilder()
@@ -75,7 +77,7 @@ public class JasminSMSProvider extends SMSProvider {
 			        .setHost(baseURL)
 			        //.setPath("/send")
 			        .setParameter("to", message.getMobileNumber())
-			        //.setParameter("from", "")
+			        .setParameter("from", sender)
 			        //.setParameter("coding", "")
 			        .setParameter("username", providerAccountId)
 			        .setParameter("password", providerAuthToken)
@@ -100,9 +102,10 @@ public class JasminSMSProvider extends SMSProvider {
 				   .build(); 
 		
 			Response response = okHttpClient.newCall(request).execute();
-			
-			
-			message.setSubmittedOnDate(new Date());
+			message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
+			message.setDeliveredOnDate(new Date());
+			message.setResponse(response.body().string());
+
 		} catch (IOException | URISyntaxException e) {
 			throw new MessageGatewayException(e.getMessage());
 		}

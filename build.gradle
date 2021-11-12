@@ -50,6 +50,7 @@ dependencies {
     compile('org.apache.velocity:velocity:1.7')
     compile('com.squareup.okhttp:okhttp:2.0.0')
     compile('com.squareup.okhttp:okhttp-urlconnection:2.0.0')
+    compile('com.squareup.okhttp3:okhttp:3.14.6')
     compile('com.squareup.retrofit:retrofit:1.6.1')
     compile('com.twilio.sdk:twilio:7.1.0')
     compile('org.drizzle.jdbc:drizzle-jdbc:1.3')

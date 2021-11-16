@@ -1,21 +1,28 @@
 buildscript {
+    ext {
+        springBootVersion = '2.5.6'
+    }
+
     repositories {
-        maven { url "https://repo.spring.io/libs-release" }
         mavenLocal()
         mavenCentral()
         jcenter()
     }
-    dependencies {
-        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.1.5.RELEASE',
-               'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
-    }
+
+    
 }
 
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'eclipse'
-apply plugin: 'spring-boot'
-apply plugin: 'license'
+plugins {
+    id 'org.springframework.boot' version '2.5.6'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'idea'
+    id 'eclipse'
+    id "com.github.hierynomus.license" version "0.15.0"
+}
+
+
+sourceCompatibility = '11'
 
 if (project.hasProperty('profile')
         && project.getProperty('profile') == 'deployable') {
@@ -43,18 +50,18 @@ task licenseFormatBuildScripts (type:nl.javadude.gradle.plugins.license.License)
 licenseFormat.dependsOn licenseFormatBuildScripts
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.springframework.boot:spring-boot-starter-actuator")
-    compile("org.springframework.boot:spring-boot-starter-data-jpa")
-    compile("org.flywaydb:flyway-core")
-    compile('org.apache.velocity:velocity:1.7')
-    compile('com.squareup.okhttp:okhttp:2.0.0')
-    compile('com.squareup.okhttp:okhttp-urlconnection:2.0.0')
-    compile('com.squareup.retrofit:retrofit:1.6.1')
-    compile('com.twilio.sdk:twilio:7.1.0')
-    compile('org.drizzle.jdbc:drizzle-jdbc:1.3')
-    compile('com.infobip:infobip-api-java-client:1.1.0')
-    testCompile("org.springframework.boot:spring-boot-starter-test")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.flywaydb:flyway-core")
+    implementation('org.apache.velocity:velocity:1.7')
+    implementation('com.squareup.okhttp:okhttp:2.0.0')
+    implementation('com.squareup.okhttp:okhttp-urlconnection:2.0.0')
+    implementation('com.squareup.retrofit:retrofit:1.6.1')
+    implementation('com.twilio.sdk:twilio:7.1.0')
+    implementation('org.drizzle.jdbc:drizzle-jdbc:1.3')
+    implementation('com.infobip:infobip-api-java-client:1.1.0')
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     
 }
 

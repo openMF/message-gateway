@@ -17,7 +17,10 @@ plugins {
     id 'java'
     id 'idea'
     id 'eclipse'
-//    id "com.github.hierynomus.license" version "0.15.0"
+    // Gradle license plugin switched to an obscure plugin
+    // because the popular plugin stopped working with all recent gradle versions
+    // https://github.com/hierynomus/license-gradle-plugin/issues/179
+    id 'org.cadixdev.licenser' version '0.6.1'
 }
 
 
@@ -37,16 +40,15 @@ repositories {
     maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
 }
 
-//license {
-//    header rootProject.file('./LICENSE.md')
-//    excludes(["**/*.html", "**/*.mustache", "**/package-info.java", "**/keystore.jks"])
-//    strictCheck true
-//}
+license {
+    header = project.file('./LICENSE.md')
+    skipExistingHeaders = true
+    exclude '**/*.html'
+    exclude '**/*.mustache'
+    exclude '**/package-info.java'
+    exclude '**/keystore.jks'
+}
 
-//task licenseFormatBuildScripts (type:nl.javadude.gradle.plugins.license.License) {
-//    source = fileTree(dir: './', includes: ['**/*.bat', '**/*.sh', '**/*.sql'])
-//}
-//licenseFormat.dependsOn licenseFormatBuildScripts
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:2.5.5")

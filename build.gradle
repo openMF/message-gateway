@@ -6,7 +6,6 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
     }
 
     
@@ -18,7 +17,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'eclipse'
-    id "com.github.hierynomus.license" version "0.15.0"
+//    id "com.github.hierynomus.license" version "0.15.0"
 }
 
 
@@ -38,22 +37,22 @@ repositories {
     maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
 }
 
-license {
-    header rootProject.file('./LICENSE.md')
-    excludes(["**/*.html", "**/*.mustache", "**/package-info.java", "**/keystore.jks"])
-    strictCheck true
-}
+//license {
+//    header rootProject.file('./LICENSE.md')
+//    excludes(["**/*.html", "**/*.mustache", "**/package-info.java", "**/keystore.jks"])
+//    strictCheck true
+//}
 
-task licenseFormatBuildScripts (type:nl.javadude.gradle.plugins.license.License) {
-    source = fileTree(dir: './', includes: ['**/*.bat', '**/*.sh', '**/*.sql'])
-}
-licenseFormat.dependsOn licenseFormatBuildScripts
+//task licenseFormatBuildScripts (type:nl.javadude.gradle.plugins.license.License) {
+//    source = fileTree(dir: './', includes: ['**/*.bat', '**/*.sh', '**/*.sql'])
+//}
+//licenseFormat.dependsOn licenseFormatBuildScripts
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.flywaydb:flyway-core")
+    implementation("org.springframework.boot:spring-boot-starter-web:2.5.5")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:2.5.2")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.5.2")
+    implementation("org.flywaydb:flyway-core:6.4.0")
     implementation('org.apache.velocity:velocity:1.7')
     implementation('com.squareup.okhttp:okhttp:2.0.0')
     implementation('com.squareup.okhttp:okhttp-urlconnection:2.0.0')

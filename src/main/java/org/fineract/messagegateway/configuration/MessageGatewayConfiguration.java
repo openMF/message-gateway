@@ -33,7 +33,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = {org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class})
 @EnableJpaRepositories(basePackages = {
         "org.fineract.messagegateway.sms.repository",
         "org.fineract.messagegateway.tenants.repository"

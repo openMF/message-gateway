@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -83,10 +83,7 @@ public class RapidProSMSProvider extends SMSProvider {
             Request request = new Request.Builder()
                     .url(url)
                     .method("POST", body)
-                    .addHeader(
-                            "Authorization",
-                            "Token 9e25e87271ef3eebc89fd430340d93f3409ed357"
-                    )
+                    .addHeader("Authorization", providerAuthToken)
                     .addHeader("Content-Type", "application/json")
                     .build();
             Response response = client.newCall(request).execute();

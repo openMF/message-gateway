@@ -95,14 +95,11 @@ This API will return Bridge Identifier by which you can use while sending SMS
 
 Note: While sending SMS, don't include country code as part of each message. This country code will be prefixed by taking value from provider details. You need configure host-address: [your public ip on which message-gateway is running] in application.yml
 
-#### To add Telerivet Java Client : Run the following commands 
+#### To add Telerivet Java Client :  
 
-    git clone https://github.com/Telerivet/telerivet-java-client
-    mvn install
-
-#### To add PHEE Connector Channel : Run the following commands
-
-    git clone https://github.com/openmf/ph-ee-connector-common
-    mvn instal
-
+    Include following url in build.gradle:
+    https://fynarfin.jfrog.io/artifactory/fyn-libs-release-local. 
+    
+    And add the following line under depedencies in build.gradle
+    implementation 'com.telerivet:TelerivetAPIClient:1.5.0'
 

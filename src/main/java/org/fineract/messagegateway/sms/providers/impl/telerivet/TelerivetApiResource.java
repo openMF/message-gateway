@@ -43,11 +43,11 @@ public class TelerivetApiResource {
     }
 
     @RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
-    public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @RequestParam("status") String messageStatus) {
+    public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @RequestBody final TelerivetResponseData report) {
         SMSMessage message = this.smsOutboundMessageRepository.findById(messageId).get() ;
         if(message != null) {
-            logger.debug("Status Callback received from Telerivet for "+messageId +" with status:" + messageStatus);
-            message.setDeliveryStatus(TelerivetStatus.smsStatus(messageStatus).getValue());
+            logger.debug("Status Callback received from Telerivet for "+messageId +" with status:" + message.getDeliveryStatus());
+            message.setDeliveryStatus(TelerivetStatus.smsStatus(report.getMessageStatus()).getValue());
             this.smsOutboundMessageRepository.save(message) ;
         }else {
             logger.info("Message with Message id "+messageId+" Not found");

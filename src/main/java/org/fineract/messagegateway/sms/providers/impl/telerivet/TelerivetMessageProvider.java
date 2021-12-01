@@ -69,7 +69,7 @@ public class TelerivetMessageProvider extends SMSProvider {
                     "status-url",statusURL));
             message.setExternalId(sent_msg.getId());
             logger.info("TelerivetMessageProvider.sendMessage():"+TelerivetStatus.smsStatus(sent_msg.getStatus()));
-            message.setDeliveryStatus(TwilioStatus.smsStatus(sent_msg.getStatus()).getValue()) ;
+            message.setDeliveryStatus(TelerivetStatus.smsStatus(sent_msg.getStatus()).getValue()) ;
             if(message.getDeliveryStatus().equals(SmsMessageStatusType.FAILED.getValue())) {
                 message.setDeliveryErrorMessage(sent_msg.getErrorMessage());
                 logger.error("Sending SMS to :"+message.getMobileNumber()+" failed with reason "+sent_msg.getErrorMessage());

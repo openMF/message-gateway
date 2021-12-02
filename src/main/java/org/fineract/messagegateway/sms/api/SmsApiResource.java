@@ -24,7 +24,10 @@ import java.util.List;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.providers.impl.infobip.InfoBipApiResource;
 import org.fineract.messagegateway.sms.service.SMSMessageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +43,8 @@ public class SmsApiResource {
 
 	//This class sends TRANSACTIONAL & PROMOTIONAL SMS
 	private SMSMessageService smsMessageService ;
-	
+	private static final Logger logger = LoggerFactory.getLogger(SmsApiResource.class);
+
 	@Autowired
     public SmsApiResource(final SMSMessageService smsMessageService) {
 		this.smsMessageService = smsMessageService ;
@@ -50,6 +54,7 @@ public class SmsApiResource {
     public ResponseEntity<Void> sendShortMessages(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
     		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
     		@RequestBody final List<SMSMessage> payload) {
+		logger.info("Payload "+ payload.get(0).getMessage());
     	this.smsMessageService.sendShortMessage(tenantId, appKey, payload);
        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }

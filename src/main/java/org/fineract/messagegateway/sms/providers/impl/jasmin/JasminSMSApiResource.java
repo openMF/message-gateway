@@ -57,7 +57,7 @@ private static final Logger logger = LoggerFactory.getLogger(JasminSMSApiResourc
     		@RequestParam("dlvrd") Integer dlvrd,
     		@RequestParam("err") Integer err,
     		@RequestParam("text") String text) {
-    	SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId) ;
+    	SMSMessage message = this.smsOutboundMessageRepository.findById(messageId).get();
     	if(message != null) {
     		logger.info("Status Callback received from JasminSMS for "+messageId+" with status:"+messageStatus);
     		message.setDeliveryStatus(smsStatus(messageStatus).getValue());

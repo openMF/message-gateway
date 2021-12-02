@@ -66,3 +66,4 @@ VALUES ('default', "123456543234abdkdkdkd", "TEST TENANT") ;
 
 INSERT INTO `m_sms_bridge` (`tenant_id`, `tenant_phone_no`, `provider_key`, `country_code`, `provider_name`, `description`)
 VALUES (1, '+1234567890', 'Dummy', '+91', 'Dummy SMS Provider - Testing', 'Dummy, just for testing');
+

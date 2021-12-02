@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM adoptopenjdk/openjdk11
 EXPOSE 9191
 
 COPY build/libs/*.jar .

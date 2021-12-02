@@ -4,7 +4,6 @@ buildscript {
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
     }
 
@@ -34,10 +33,10 @@ if (project.hasProperty('profile')
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven { url "https://repo.spring.io/libs-release" }
     maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+    maven { url "https://fynarfin.jfrog.io/artifactory/fyn-libs-release-local"}
 }
 
 //license {

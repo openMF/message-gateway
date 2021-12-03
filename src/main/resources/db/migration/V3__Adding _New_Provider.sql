@@ -18,4 +18,4 @@
 --
 
 INSERT INTO `m_sms_bridge` (`tenant_id`, `tenant_phone_no`, `provider_key`, `country_code`, `provider_name`, `description`)
-VALUES (3, '555-1212', 'telerivet', '+91', 'Telerivet', 'Telerivet Messenger);
+VALUES ((select id from m_tenants where tenant_id = 'default'), '555-1212', 'telerivet', '+91', 'Telerivet', 'Telerivet Messenger');

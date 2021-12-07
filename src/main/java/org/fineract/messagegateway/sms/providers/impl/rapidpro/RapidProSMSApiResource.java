@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/rapidprosms")
+@RequestMapping("/rapidpro")
 public class RapidProSMSApiResource {
 
   private static final Logger logger = LoggerFactory.getLogger(
@@ -58,7 +58,7 @@ public class RapidProSMSApiResource {
   public ResponseEntity<Void> updateDeliveryStatus(
     @PathVariable("messageId") final Long messageId
   ) {
-    SMSMessage message = this.smsOutboundMessageRepository.findOne(messageId);
+    SMSMessage message = this.smsOutboundMessageRepository.findById(messageId).get();
     if (message != null) {
       logger.info(
         "Status Callback received from RapidProSMS for " +

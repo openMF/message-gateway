@@ -21,8 +21,8 @@ INSERT INTO `m_sms_bridge` (`tenant_id`, `tenant_phone_no`, `provider_key`, `cou
 VALUES ((select id from m_tenants where tenant_id = 'default'), '555-1212', 'RapidPro', '+91', 'RapidPro', 'RapidPro Messenger');
 
 INSERT INTO `m_sms_bridge_configuration` (`sms_bridge_id`, `config_name`, `config_value`)
-VALUES ((SELECT id from m_sms_bridge WHERE provider_key = 'RapidPro'), `Provider_Url`, `https://api.rapidpro.io/api/v2`)
+VALUES ((SELECT id from m_sms_bridge WHERE provider_key = 'RapidPro'), 'Provider_Url', 'https://api.rapidpro.io/api/v2');
 
 INSERT INTO `m_sms_bridge_configuration` (`sms_bridge_id`, `config_name`, `config_value`)
-VALUES ((SELECT id from m_sms_bridge WHERE provider_key = 'RapidPro'), `Provider_Auth_Token`, ``)
+VALUES ((SELECT id from m_sms_bridge WHERE provider_key = 'RapidPro'), 'Provider_Auth_Token', '');
 

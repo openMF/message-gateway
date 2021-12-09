@@ -87,10 +87,11 @@ public class RapidProSMSProvider extends SMSProvider {
                     .addHeader("Content-Type", "application/json")
                     .build();
             Response response = client.newCall(request).execute();
-            logger.info(response.body().string());
+            String responseBody =response.body().string();
+            logger.info(responseBody);
             message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
             message.setDeliveredOnDate(new Date());
-            message.setResponse(response.body().string());
+            message.setResponse(responseBody);
         } catch (IOException e) {
             throw new MessageGatewayException(e.getMessage());
         }

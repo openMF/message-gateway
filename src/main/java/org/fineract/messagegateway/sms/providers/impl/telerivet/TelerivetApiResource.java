@@ -42,15 +42,15 @@ public class TelerivetApiResource {
         this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
     }
 
-    @RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
-    public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @RequestBody final TelerivetResponseData report) {
-        SMSMessage message = this.smsOutboundMessageRepository.findById(messageId).get() ;
+    @RequestMapping(value = "/report", method = RequestMethod.POST, consumes ={"application/x-www-form-urlencoded"}, produces = {"application/x-www-form-urlencoded"})
+    public ResponseEntity<Void> updateDeliveryStatus(@ModelAttribute final TelerivetResponseData report) {
+        SMSMessage message = this.smsOutboundMessageRepository.findByExternalId(report.getId());
         if(message != null) {
-            logger.debug("Status Callback received from Telerivet for "+messageId +" with status:" + message.getDeliveryStatus());
-            message.setDeliveryStatus(TelerivetStatus.smsStatus(report.getMessageStatus()).getValue());
+            logger.debug("Status Callback received from Telerivet for "+report.getId() +" with status:" + report.getStatus());
+            message.setDeliveryStatus(TelerivetStatus.smsStatus(report.getStatus()).getValue());
             this.smsOutboundMessageRepository.save(message) ;
         }else {
-            logger.info("Message with Message id "+messageId+" Not found");
+            logger.info("Message with Message id "+report.getId()+" Not found");
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

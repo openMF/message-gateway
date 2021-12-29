@@ -26,3 +26,8 @@ spring:
 hostconfig:
   host-address: localhost
   protocol: http
+
+notificationsconfig:
+  address: localhost
+  protocol: http
+  port: 5000

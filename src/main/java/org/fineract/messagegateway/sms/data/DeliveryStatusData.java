@@ -25,7 +25,7 @@ import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 
 public class DeliveryStatusData {
 
-	private final String id;
+	private final String id; //stands for internal id
 	private final String externalId;
 	private final Date deliveredOnDate;
 	private final Integer deliveryStatus;

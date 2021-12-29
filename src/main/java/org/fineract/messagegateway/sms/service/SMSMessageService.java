@@ -50,32 +50,32 @@ import org.springframework.stereotype.Service;
 @Service
 public class SMSMessageService {
 
-	 private static final Logger logger = LoggerFactory.getLogger(SMSMessageService.class);
-	 
+	private static final Logger logger = LoggerFactory.getLogger(SMSMessageService.class);
+
 	private final SmsOutboundMessageRepository smsOutboundMessageRepository ;
-	
+
 	private final SMSProviderFactory smsProviderFactory ;
-	
+
 	private final JdbcTemplate jdbcTemplate ;
-	
+
 	private ExecutorService executorService ;
-	
+
 	private ScheduledExecutorService scheduledExecutorService ;
-	
+
 	private final SecurityService securityService ;
-	
-	
+
+
 	@Autowired
 	public SMSMessageService(final SmsOutboundMessageRepository smsOutboundMessageRepository,
-			final SMSProviderFactory smsProviderFactory,
-			final DataSource dataSource,
-			final SecurityService securityService) {
+							 final SMSProviderFactory smsProviderFactory,
+							 final DataSource dataSource,
+							 final SecurityService securityService) {
 		this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
 		this.smsProviderFactory = smsProviderFactory ;
 		this.jdbcTemplate = new JdbcTemplate(dataSource) ;
 		this.securityService = securityService ;
 	}
-	
+
 	@PostConstruct
 	public void init() {
 		logger.debug("Intializing SMSMessage Service.....");
@@ -85,7 +85,7 @@ public class SMSMessageService {
 		//When do I have to shutdown  scheduledExecutorService ? :-( as it is no use after triggering BootupPendingMessagesTask
 		//Shutdown scheduledExecutorService on application close event
 	}
-	
+
 	public void sendShortMessage(final String tenantId, final String tenantAppKey, final Collection<SMSMessage> messages) {
 		logger.debug("Request Received to send messages.....");
 		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
@@ -95,7 +95,7 @@ public class SMSMessageService {
 		this.smsOutboundMessageRepository.saveAll(messages) ;
 		this.executorService.execute(new MessageTask(tenant, this.smsOutboundMessageRepository, this.smsProviderFactory, messages));
 	}
-	
+
 	public Collection<DeliveryStatusData> getDeliveryStatus(final String tenantId, final String tenantAppKey, final Collection<Long> internalIds) {
 		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
 		DeliveryStatusDataRowMapper mapper = new DeliveryStatusDataRowMapper() ;
@@ -106,21 +106,29 @@ public class SMSMessageService {
 		Collection<DeliveryStatusData> datas = this.jdbcTemplate.query(query, mapper, new Object[] {tenant.getId()}) ;
 		return datas ;
 	}
-	
+
+	public Collection<DeliveryStatusData> getDeliveryCallbackStatus(final String externalId) {
+		DeliveryStatusDataRowMapper mapper = new DeliveryStatusDataRowMapper() ;
+		String query = mapper.schema() +" and m.internal_id in " +externalId;
+		Collection<DeliveryStatusData> datas = this.jdbcTemplate.query(query, mapper) ;
+		return datas ;
+	}
+
+
 	class DeliveryStatusDataRowMapper implements RowMapper<DeliveryStatusData> {
 
 		private final StringBuilder buff = new StringBuilder() ;
-		
+
 		public DeliveryStatusDataRowMapper() {
 			buff.append("select internal_id, external_id, delivered_on_date, delivery_status, delivery_error_message from m_outbound_messages m") ;
 		}
-		
+
 		public String schema() {
 			return buff.toString() ;
 		}
-		
+
 		@Override
-		public DeliveryStatusData mapRow(ResultSet rs, int rowNum) throws SQLException { 
+		public DeliveryStatusData mapRow(ResultSet rs, int rowNum) throws SQLException {
 			String internalId = rs.getString("internal_id") ;
 			String externalId = rs.getString("external_id") ;
 			Date deliveredOnDate = rs.getDate("delivered_on_date") ;
@@ -130,36 +138,36 @@ public class SMSMessageService {
 			return data;
 		}
 	}
-	
+
 	class MessageTask implements Runnable {
 
 		final Collection<SMSMessage> messages ;
 		final SmsOutboundMessageRepository smsOutboundMessageRepository ;
 		final SMSProviderFactory smsProviderFactory ;
 		final Tenant tenant ;
-		
-		public MessageTask(final Tenant tenant, final SmsOutboundMessageRepository smsOutboundMessageRepository, 
-				final SMSProviderFactory smsProviderFactory,
-				final Collection<SMSMessage> messages) {
+
+		public MessageTask(final Tenant tenant, final SmsOutboundMessageRepository smsOutboundMessageRepository,
+						   final SMSProviderFactory smsProviderFactory,
+						   final Collection<SMSMessage> messages) {
 			this.tenant = tenant ;
 			this.messages = messages ;
 			this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
 			this.smsProviderFactory = smsProviderFactory ;
 		}
-		
+
 		@Override
 		public void run() {
 			this.smsProviderFactory.sendShortMessage(messages);
 			this.smsOutboundMessageRepository.saveAll(messages) ;
 		}
 	}
-	
+
 	class BootupPendingMessagesTask implements Callable<Integer> {
 
 		final SmsOutboundMessageRepository smsOutboundMessageRepository ;
 		final SMSProviderFactory smsProviderFactory ;
-		public BootupPendingMessagesTask(final SmsOutboundMessageRepository smsOutboundMessageRepository, 
-				final SMSProviderFactory smsProviderFactory) {
+		public BootupPendingMessagesTask(final SmsOutboundMessageRepository smsOutboundMessageRepository,
+										 final SMSProviderFactory smsProviderFactory) {
 			this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
 			this.smsProviderFactory = smsProviderFactory ;
 		}

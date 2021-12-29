@@ -23,6 +23,7 @@ import org.fineract.messagegateway.tenants.domain.Tenant;
 import org.fineract.messagegateway.tenants.exception.TenantNotFoundException;
 import org.fineract.messagegateway.tenants.repository.TenantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,7 +35,7 @@ public class TenantsService {
 	
 	@Autowired
 	public TenantsService(final TenantRepository tenantRepository,
-			final SecurityService securityService) {
+			@Lazy final SecurityService securityService) {
 		this.tenantRepository = tenantRepository ;
 		this.securityService = securityService ;
 	}

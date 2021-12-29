@@ -21,9 +21,12 @@ package org.fineract.messagegateway.sms.providers.impl.telerivet;
 
 import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
+import org.fineract.messagegateway.sms.util.CallbackEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,11 +34,19 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/telerivet")
-public class TelerivetApiResource {
+public class TelerivetApiResource implements ApplicationEventPublisherAware {
 
     private static final Logger logger = LoggerFactory.getLogger(TelerivetApiResource.class);
 
     private final SmsOutboundMessageRepository smsOutboundMessageRepository ;
+
+    private ApplicationEventPublisher publisher;
+
+    //You must override this method; It will give you acces to ApplicationEventPublisher
+    public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
+    }
+
 
     @Autowired
     public TelerivetApiResource(final SmsOutboundMessageRepository smsOutboundMessageRepository) {
@@ -49,6 +60,8 @@ public class TelerivetApiResource {
             logger.debug("Status Callback received from Telerivet for "+report.getId() +" with status:" + report.getStatus());
             message.setDeliveryStatus(TelerivetStatus.smsStatus(report.getStatus()).getValue());
             this.smsOutboundMessageRepository.save(message) ;
+            //publishing the event here
+            publisher.publishEvent(new CallbackEvent(this, "UPDATE", message.getExternalId()));
         }else {
             logger.info("Message with Message id "+report.getId()+" Not found");
         }

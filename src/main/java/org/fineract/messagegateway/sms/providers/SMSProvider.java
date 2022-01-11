@@ -37,4 +37,6 @@ public abstract class SMSProvider {
         String userPass = username + ":" + password + ":" + tenant;
         return Base64.getEncoder().encodeToString(userPass.getBytes());
     }
+
+	public abstract void updateStatusByMessageId(SMSBridge bridge, String externalId) throws MessageGatewayException ;
 }

@@ -84,8 +84,13 @@ public class InfoBipMessageProvider extends SMSProvider {
 		message.setDeliveryStatus(InfoBipStatus.smsStatus(sentMessageInfo.getStatus().getGroupId()).getValue());
 		logger.debug("InfoBipMessageProvider.sendMessage():"+InfoBipStatus.smsStatus(sentMessageInfo.getStatus().getGroupId()).getValue());
 	}
-	
-	
+
+	@Override
+	public void updateStatusByMessageId(SMSBridge bridge, String externalId) throws MessageGatewayException {
+
+	}
+
+
 	private SendMultipleTextualSmsAdvanced getRestClient(final SMSBridge smsBridge) {
 		String authorizationKey = encodeBase64(smsBridge) ;
 		 SendMultipleTextualSmsAdvanced client = this.restClients.get(authorizationKey) ;

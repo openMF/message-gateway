@@ -88,7 +88,12 @@ public class TwilioMessageProvider extends SMSProvider {
         	message.setDeliveryErrorMessage(e.getMessage());
         }
     }
-    
+
+    @Override
+    public void updateStatusByMessageId(SMSBridge bridge, String externalId) throws MessageGatewayException {
+
+    }
+
     private TwilioRestClient getRestClient(final SMSBridge smsBridge) {
     	String authorizationKey = encodeBase64(smsBridge) ;
     	TwilioRestClient client = this.restClients.get(authorizationKey) ;

@@ -31,13 +31,17 @@ public class DeliveryStatusData {
 	private final Integer deliveryStatus;
 	private final Boolean hasError;
 	private final String errorMessage;
+	private final Long bridgeId;
+	private final Long tenantId;
 
 	public DeliveryStatusData(final String id, final String externalId, final Date deliveredOnDate,
-			final Integer deliveryStatus, final String errorMessage) {
+							  final Integer deliveryStatus, final String errorMessage, final Long bridgeId,final  Long tenantId) {
 		this.id = id;
 		this.externalId = externalId;
 		this.deliveredOnDate = deliveredOnDate;
 		this.deliveryStatus = deliveryStatus;
+		this.bridgeId = bridgeId;
+		this.tenantId = tenantId;
 		if (deliveryStatus.equals(SmsMessageStatusType.FAILED)) {
 			this.hasError = Boolean.TRUE;
 		} else {
@@ -70,4 +74,11 @@ public class DeliveryStatusData {
 		return errorMessage;
 	}
 
+	public Long getBridgeId() {
+		return bridgeId;
+	}
+
+	public Long getTenantId() {
+		return tenantId;
+	}
 }

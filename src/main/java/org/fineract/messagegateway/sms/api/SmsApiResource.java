@@ -60,6 +60,8 @@ public class SmsApiResource {
 	@Autowired
 	private TelerivetMessageProvider telerivetMessageProvider;
 
+	private SmsOutboundMessageRepository smsOutboundMessageRepository;
+
 	@Autowired
 	private  SMSBridgeRepository smsBridgeRepository;
 

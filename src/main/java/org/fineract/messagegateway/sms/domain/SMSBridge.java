@@ -18,6 +18,8 @@
  */
 package org.fineract.messagegateway.sms.domain;
 
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -33,6 +35,7 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="m_sms_bridge")
+@Component
 public class SMSBridge extends AbstractPersistableCustom<Long> {
 
 	@Column(name = "tenant_id", nullable = false)

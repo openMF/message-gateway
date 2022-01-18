@@ -107,10 +107,10 @@ public class SMSMessageService {
 		return datas ;
 	}
 
-	public Collection<DeliveryStatusData> getDeliveryCallbackStatus(final String externalId) {
+	public Collection<DeliveryStatusData>  getDeliveryCallbackStatus( String externalId) {
 		DeliveryStatusDataRowMapper mapper = new DeliveryStatusDataRowMapper() ;
-		String query = mapper.schema() +" and m.internal_id in " +externalId;
-		Collection<DeliveryStatusData> datas = this.jdbcTemplate.query(query, mapper) ;
+		String query = mapper.schema() +" where m.external_id=?";
+		Collection<DeliveryStatusData> datas = this.jdbcTemplate.query(query, mapper, externalId) ;
 		return datas ;
 	}
 
@@ -120,7 +120,7 @@ public class SMSMessageService {
 		private final StringBuilder buff = new StringBuilder() ;
 
 		public DeliveryStatusDataRowMapper() {
-			buff.append("select internal_id, external_id, delivered_on_date, delivery_status, delivery_error_message from m_outbound_messages m") ;
+			buff.append("select internal_id, external_id, delivered_on_date, delivery_status, delivery_error_message, sms_bridge_id, tenant_id from m_outbound_messages m") ;
 		}
 
 		public String schema() {
@@ -134,7 +134,9 @@ public class SMSMessageService {
 			Date deliveredOnDate = rs.getDate("delivered_on_date") ;
 			Integer deliveryStatus = rs.getInt("delivery_status") ;
 			String errorMessage = rs.getString("delivery_error_message") ;
-			DeliveryStatusData data = new DeliveryStatusData(internalId, externalId, deliveredOnDate, deliveryStatus, errorMessage) ;
+			Long bridgeId = Long.valueOf(rs.getInt("sms_bridge_id"));
+			Long tenantId = rs.getLong("tenant_id") ;
+			DeliveryStatusData data = new DeliveryStatusData(internalId, externalId, deliveredOnDate, deliveryStatus, errorMessage, bridgeId,tenantId) ;
 			return data;
 		}
 	}

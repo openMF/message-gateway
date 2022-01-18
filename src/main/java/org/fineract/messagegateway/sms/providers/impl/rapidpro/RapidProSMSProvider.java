@@ -97,6 +97,11 @@ public class RapidProSMSProvider extends SMSProvider {
         }
     }
 
+    @Override
+    public void updateStatusByMessageId(SMSBridge bridge, String externalId) throws MessageGatewayException {
+
+    }
+
     private OkHttpClient getRestClient(final SMSBridge smsBridge) {
         String authorizationKey = encodeBase64(smsBridge);
         OkHttpClient client = this.restClients.get(authorizationKey);

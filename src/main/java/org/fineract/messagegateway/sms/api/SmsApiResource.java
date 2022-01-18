@@ -18,17 +18,27 @@
  */
 package org.fineract.messagegateway.sms.api;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
+import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
+import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.exception.ProviderNotDefinedException;
+import org.fineract.messagegateway.sms.exception.SMSBridgeNotFoundException;
+import org.fineract.messagegateway.sms.providers.SMSProvider;
 import org.fineract.messagegateway.sms.providers.impl.infobip.InfoBipApiResource;
+import org.fineract.messagegateway.sms.providers.impl.telerivet.TelerivetMessageProvider;
+import org.fineract.messagegateway.sms.repository.SMSBridgeRepository;
+import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.fineract.messagegateway.sms.service.SMSMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,8 +52,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class SmsApiResource {
 
 	//This class sends TRANSACTIONAL & PROMOTIONAL SMS
+
 	private SMSMessageService smsMessageService ;
+
 	private static final Logger logger = LoggerFactory.getLogger(SmsApiResource.class);
+
+	@Autowired
+	private TelerivetMessageProvider telerivetMessageProvider;
+
+	@Autowired
+	private  SMSBridgeRepository smsBridgeRepository;
+
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@Autowired
     public SmsApiResource(final SMSMessageService smsMessageService) {
@@ -62,8 +83,33 @@ public class SmsApiResource {
     @RequestMapping(value = "/report", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<Collection<DeliveryStatusData>> getDeliveryStatus(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
     		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
-    		@RequestBody final Collection<Long> internalIds) {
+    		@RequestBody final Collection<Long> internalIds) throws MessageGatewayException {
     	Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey, internalIds) ;
-    	return new ResponseEntity<>(deliveryStatus, HttpStatus.OK);
-    }
+		for(DeliveryStatusData deliveryStatusData :  deliveryStatus) {
+			if (deliveryStatusData.getDeliveryStatus() != 300) {
+				logger.info("Delivery status is still pending, fetching message status manually ");
+				SMSBridge bridge = smsBridgeRepository.findByIdAndTenantId(deliveryStatusData.getBridgeId(),
+						deliveryStatusData.getTenantId());
+				SMSProvider provider = null;
+				try {
+					if (bridge == null) {
+						throw new SMSBridgeNotFoundException(deliveryStatusData.getBridgeId());
+					}
+					logger.info("Finding provider for fetching message status....{}", bridge.getProviderKey());
+					provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey());
+					if (provider == null)
+						throw new ProviderNotDefinedException();
+					provider.updateStatusByMessageId(bridge, deliveryStatusData.getExternalId());
+					Collection<Long> id = new ArrayList<Long>();
+					id.add(Long.valueOf(deliveryStatusData.getId()));
+					Collection<DeliveryStatusData> messageDeliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey, id);
+					deliveryStatus = messageDeliveryStatus;
+				} catch (ProviderNotDefinedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return new ResponseEntity<>(deliveryStatus, HttpStatus.OK);
+
+	}
 }

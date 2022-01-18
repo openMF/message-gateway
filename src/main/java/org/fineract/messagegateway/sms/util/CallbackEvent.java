@@ -1,34 +1,34 @@
 package org.fineract.messagegateway.sms.util;
 
-import org.fineract.messagegateway.sms.data.DeliveryStatusData;
 import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 
-public class CallbackEvent extends ApplicationEvent
-{
+public class CallbackEvent extends ApplicationEvent {
+    private static final Logger logger = LoggerFactory.getLogger(CallbackEvent.class);
 
-    private String eventType;
+    @Autowired
     private SmsOutboundMessageRepository smsOutboundMessageRepository ;
     private String messageId;
+    private SMSMessage message;
+
+
 
     //Constructor's first parameter must be source
-    public CallbackEvent(Object source, String eventType, String messageId)
+    public CallbackEvent(Object source, SmsOutboundMessageRepository smsOutboundMessageRepository, String messageId)
     {
-        //Calling this super class constructor is necessary
         super(source);
-        this.eventType = eventType;
+        this.smsOutboundMessageRepository = smsOutboundMessageRepository;
         this.messageId = messageId;
     }
-
-    public String getEventType() {
-        return eventType;
-    }
-
-
     public SMSMessage getMessage() {
-
-        SMSMessage message = this.smsOutboundMessageRepository.findByExternalId(messageId);
+        logger.info("Called get message from callback event listener");
+        logger.info("Message id is:" + messageId);
+        message = this.smsOutboundMessageRepository.findByExternalId(messageId);
+        logger.info("Response is:" + message);
         return message;
     }
 }

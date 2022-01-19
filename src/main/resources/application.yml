@@ -17,9 +17,9 @@ spring:
       use-new-id-generator-mappings: false
 
   datasource:
-    url: jdbc:mysql:thin://localhost:3306/messagegateway
+    url: jdbc:mysql:thin://operations-mysql:3306/messagegateway
     username: root
-    password: mysql
+    password: ethieTieCh8ahv
     driver-class-name: org.drizzle.jdbc.DrizzleDriver
 
 # Status Callback configuration for Twilio. Port will be taken from server configuration
@@ -31,3 +31,6 @@ callbackconfig:
   address: 0.0.0.0
   protocol: http
   port: 5000
+
+application:
+  version: 1.0.0

@@ -85,6 +85,7 @@ public class SmsApiResource {
     		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
     		@RequestBody final Collection<Long> internalIds) throws MessageGatewayException {
     	Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey, internalIds) ;
+		logger.info("From SMS API Resource, successfully fetched the message status");
 		for(DeliveryStatusData deliveryStatusData :  deliveryStatus) {
 			if (deliveryStatusData.getDeliveryStatus() != 300) {
 				logger.info("Delivery status is still pending, fetching message status manually ");

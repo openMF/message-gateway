@@ -19,15 +19,25 @@
 package org.fineract.messagegateway;
 
 import org.fineract.messagegateway.configuration.MessageGatewayConfiguration;
+import org.fineract.messagegateway.sms.util.CallbackEventListner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 
 public class MessageGateway {
+
+    private static final Logger logger = LoggerFactory.getLogger(MessageGateway.class);
+    @Value("${application.version}")
+    private static String version ;
 
     public MessageGateway() {
         super();
     }
 
     public static void main(String[] args) {
+        logger.info("Version :" + version);
         SpringApplication.run(MessageGatewayConfiguration.class, args);
+
     }
 }

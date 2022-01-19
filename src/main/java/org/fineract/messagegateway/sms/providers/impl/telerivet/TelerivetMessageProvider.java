@@ -54,7 +54,7 @@ public class TelerivetMessageProvider extends SMSProvider {
 
     @Autowired
     public TelerivetMessageProvider(final HostConfig hostConfig) {
-        callBackUrl = String.format("%s://%s/telerivet/report/", hostConfig.getProtocol(), hostConfig.getHostName(), hostConfig.getPort());
+        callBackUrl = String.format("%s://%s:%d/telerivet/report/", hostConfig.getProtocol(), hostConfig.getHostName(), hostConfig.getPort());
         logger.info("Registering call back to Telerivet:" + callBackUrl);
     }
 

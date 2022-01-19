@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class HostConfig {
 
-	@Value("${hostconfig.host-address}")
+	@Value("${hostconfig.host}")
 	private String hostName ;
 	
 	@Value("${hostconfig.protocol}")

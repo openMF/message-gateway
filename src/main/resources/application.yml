@@ -28,7 +28,7 @@ hostconfig:
   protocol: http
 
 callbackconfig:
-  address: 0.0.0.0
+  host: 0.0.0.0
   protocol: http
   port: 5000
 

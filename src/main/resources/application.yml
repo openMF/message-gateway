@@ -34,3 +34,13 @@ callbackconfig:
 
 application:
   version: 1.0.0
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      liveness:
+        enabled: true
+      readiness:
+        enabled: true

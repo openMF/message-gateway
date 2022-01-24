@@ -24,13 +24,23 @@ spring:
 
 # Status Callback configuration for Twilio. Port will be taken from server configuration
 hostconfig:
-  host-address: localhost
+  host: localhost
   protocol: http
 
 callbackconfig:
-  address: 0.0.0.0
+  host: 0.0.0.0
   protocol: http
   port: 5000
 
 application:
   version: 1.0.0
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      liveness:
+        enabled: true
+      readiness:
+        enabled: true

@@ -17,7 +17,7 @@ import java.util.Collection;
 @Component
 public class CallbackEventListner implements ApplicationListener<CallbackEvent> {
 
-    @Value("${callbackconfig.address}")
+    @Value("${callbackconfig.host}")
     private String address ;
 
     @Value("${callbackconfig.protocol}")

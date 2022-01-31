@@ -32,16 +32,25 @@ import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.telerivet.*;
 
 
-
 @Service(value = "telerivet")
 @Component
 public class TelerivetMessageProvider extends SMSProvider {
+
+    @Value("${providerSource.fromyml}")
+    private String ymlCheck;
+
+    @Value("${providerKeys.telerivetApiKey}")
+    private String apiKey;
+
+    @Value("${providerKeys.telerivetProjectId}")
+    private String projectId;
 
     private static final Logger logger = LoggerFactory.getLogger(TelerivetMessageProvider.class);
 
@@ -54,14 +63,24 @@ public class TelerivetMessageProvider extends SMSProvider {
 
     @Autowired
     public TelerivetMessageProvider(final HostConfig hostConfig) {
-        callBackUrl = String.format("%s://%s:%d/telerivet/report/", hostConfig.getProtocol(), hostConfig.getHostName(), hostConfig.getPort());
+        callBackUrl = String.format("%s://%s/telerivet/report/", hostConfig.getProtocol(), hostConfig.getHostName());
         logger.info("Registering call back to Telerivet:" + callBackUrl);
     }
 
     @Override
     public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
-        String providerAPIKey = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_API_KEY);
-        String providerProjectId = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_PROJECT_ID);
+        String providerAPIKey = null;
+        String providerProjectId = null;
+        if(ymlCheck.equals("enabled")){
+           logger.info("Yml values are enables so attaching provider related values from yml");
+           providerAPIKey = apiKey;
+           providerProjectId = projectId;
+        }
+        else{
+          providerAPIKey = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_API_KEY);
+          providerProjectId = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_PROJECT_ID);
+        }
+
         String statusURL = callBackUrl;
         String mobileNumber = message.getMobileNumber();
         String messageToSend = message.getMessage();

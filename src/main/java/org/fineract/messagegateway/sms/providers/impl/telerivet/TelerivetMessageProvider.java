@@ -113,8 +113,18 @@ public class TelerivetMessageProvider extends SMSProvider {
         Message msg = null;
         try {
             logger.info("Fetching message status by id");
-            String providerAPIKey = bridge.getConfigValue(MessageGatewayConstants.PROVIDER_API_KEY);
-            String providerProjectId = bridge.getConfigValue(MessageGatewayConstants.PROVIDER_PROJECT_ID);
+            String providerAPIKey = null;
+            String providerProjectId = null;
+            if(ymlCheck.equals("enabled")){
+                logger.info("Yml values are enables so attaching provider related values from yml");
+                providerAPIKey = apiKey;
+                providerProjectId = projectId;
+            }
+            else{
+                providerAPIKey = bridge.getConfigValue(MessageGatewayConstants.PROVIDER_API_KEY);
+                providerProjectId = bridge.getConfigValue(MessageGatewayConstants.PROVIDER_PROJECT_ID);
+            }
+
             SMSMessage message = this.smsOutboundMessageRepository.findByExternalId(externalId);
             TelerivetAPI tr = new TelerivetAPI(providerAPIKey);
             Project project = tr.initProjectById(providerProjectId);

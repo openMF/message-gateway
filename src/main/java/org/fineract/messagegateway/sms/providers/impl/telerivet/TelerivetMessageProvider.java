@@ -130,6 +130,7 @@ public class TelerivetMessageProvider extends SMSProvider {
             Project project = tr.initProjectById(providerProjectId);
             msg = project.getMessageById(externalId);
             message.setDeliveryStatus(TelerivetStatus.smsStatus(msg.getStatus()).getValue());
+            message.setDeliveryErrorMessage(msg.getErrorMessage());
             this.smsOutboundMessageRepository.save(message) ;
             logger.debug("Value updated");
 

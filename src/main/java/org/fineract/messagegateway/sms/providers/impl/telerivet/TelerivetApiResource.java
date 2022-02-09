@@ -62,7 +62,7 @@ public class TelerivetApiResource implements ApplicationEventPublisherAware {
             message.setDeliveryErrorMessage(report.getError_message());
             this.smsOutboundMessageRepository.save(message) ;
             //publishing the event here
-            if(message.getDeliveryStatus()==300) {
+            if(message.getDeliveryStatus() == 300 || message.getDeliveryStatus() == 400) {
                 logger.info("Publishing Event with id " + report.getId());
                 publisher.publishEvent(new CallbackEvent(this, smsOutboundMessageRepository, report.getId()));
             }

@@ -11,6 +11,7 @@ repos/
 .settings
 .gradle
 .idea
+.DS_Store
 
 *.log
 *.iml

@@ -52,3 +52,7 @@ providerSource:
 providerKeys:
   telerivetApiKey: eKiC1_JWdKy7eaTGQFHxXXjXjacr60W9Zntl
   telerivetProjectId: PJ5ff552ce01d2978c
+
+logging:
+  level:
+    ROOT: ERROR

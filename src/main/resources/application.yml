@@ -45,14 +45,14 @@ management:
       readiness:
         enabled: true
 
-providerSource:
-  fromDatabase: disabled
-  fromyml: enabled
+providersource:
+  from-database: disabled
+  from-yml: enabled
 
-providerKeys:
-  telerivetApiKey: eKiC1_JWdKy7eaTGQFHxXXjXjacr60W9Zntl
-  telerivetProjectId: PJ5ff552ce01d2978c
+providerkeys:
+  telerivet-apikey: eKiC1_JWdKy7eaTGQFHxXXjXjacr60W9Zntl
+  telerivet-projectid: PJ5ff552ce01d2978c
 
 logging:
   level:
-    ROOT: ERROR
+    root: ERROR

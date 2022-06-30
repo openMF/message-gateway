@@ -103,3 +103,4 @@ Note: While sending SMS, don't include country code as part of each message. Thi
     And add the following line under depedencies in build.gradle
     implementation 'com.telerivet:TelerivetAPIClient:1.5.0'
 
+###Auto-Trigger

@@ -22,10 +22,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import lombok.*;
 import org.fineract.messagegateway.sms.domain.AbstractPersistableCustom;
 
 @Entity
 @Table(name="m_tenants")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Tenant extends AbstractPersistableCustom<Long> {
 
 	@Column(name = "tenant_id", nullable = false)
@@ -37,35 +41,9 @@ public class Tenant extends AbstractPersistableCustom<Long> {
 	@Column(name = "description", nullable = true)
 	private String description ;
 	
-	protected Tenant() { }
-	
 	public Tenant(final String tenantId, final String tenantAppKey, final String description) {
 		this.tenantId = tenantId ;
 		this.tenantAppKey = tenantAppKey ;
 		this.description = description ;
-	}
-		
-	public String getTenantId() {
-		return tenantId;
-	}
-
-	public void setTenantId(String tenantId) {
-		this.tenantId = tenantId;
-	}
-
-	public String getTenantAppKey() {
-		return tenantAppKey;
-	}
-
-	public void setTenantAppKey(String tenantAppKey) {
-		this.tenantAppKey = tenantAppKey;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 }

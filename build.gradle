@@ -66,6 +66,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.0'
     implementation 'org.json:json:20210307'
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 wrapper {

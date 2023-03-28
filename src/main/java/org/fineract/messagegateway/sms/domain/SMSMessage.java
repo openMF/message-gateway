@@ -75,7 +75,7 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 		
 	}
 
-	private SMSMessage(final String externalId, final Long internalId, final Long tenantId,
+	public SMSMessage(final String externalId, final Long internalId, final Long tenantId,
 			final Date submittedOnDate, final Date deliveredOnDate,
 			final SmsMessageStatusType deliveryStatus, final String deliveryErrorMessage, final String sourceAddress,
 			final String mobileNumber, final String message, final Long bridgeId) {
@@ -177,6 +177,9 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 	
 	public void setDeliveryErrorMessage(final String deliveryErrorMessage) {
 		this.deliveryErrorMessage = deliveryErrorMessage ;
+	}
+	public String getDeliveryErrorMessage(){
+		return this.deliveryErrorMessage;
 	}
 	
 	public void setDeliveryStatus(final Integer status) {

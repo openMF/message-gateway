@@ -46,13 +46,49 @@ management:
         enabled: true
 
 providerSource:
-  fromDatabase: disabled
+  fromdatabase: disabled
   fromyml: enabled
 
 providerKeys:
   telerivetApiKey: eKiC1_JWdKy7eaTGQFHxXXjXjacr60W9Zntl
   telerivetProjectId: PJ5ff552ce01d2978c
 
+provider:
+  enabled: true
+  id: 2
+
+operationsconfig:
+  tenantid: "Fineract-Platform-TenantId"
+  tenantidvalue : "default"
+  tenantappkey: "Fineract-Tenant-App-Key"
+  tenantappvalue: "123456543234abdkdkdkd"
+
+
 logging:
   level:
-    ROOT: ERROR
+    org:
+      apache:
+        camel=DEBUG:
+    root: INFO
+
+
+camel:
+  server-port: 5009
+  springboot:
+    main-run-controller: true
+  dataformat:
+    json-jackson:
+      auto-discover-object-mapper: true
+zeebe:
+  client:
+    max-execution-threads: 100
+    number-of-workers: 5
+    evenly-allocated-max-jobs: "#{${zeebe.client.max-execution-threads} / ${zeebe.client.number-of-workers}}"
+    ttl: 30000
+    security:
+      plaintext: true
+  broker:
+    contactpoint: "zeebe-zeebe-gateway:26500"
+  worker:
+    timer: "PT15S"
+    retries: 3

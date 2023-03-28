@@ -19,8 +19,10 @@
 package org.fineract.messagegateway.sms.providers.impl.telerivet;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
+import io.camunda.zeebe.client.ZeebeClient;
 import org.fineract.messagegateway.configuration.HostConfig;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
@@ -38,6 +40,7 @@ import org.springframework.stereotype.Service;
 
 import com.telerivet.*;
 
+import static org.fineract.messagegateway.zeebe.ZeebeVariables.*;
 
 @Service(value = "telerivet")
 @Component
@@ -59,6 +62,8 @@ public class TelerivetMessageProvider extends SMSProvider {
     @Autowired
     private SmsOutboundMessageRepository smsOutboundMessageRepository;
 
+    @Autowired
+    private ZeebeClient zeebeClient;
 
 
     @Autowired
@@ -86,7 +91,7 @@ public class TelerivetMessageProvider extends SMSProvider {
         String messageToSend = message.getMessage();
         try {
             TelerivetAPI tr = new TelerivetAPI(providerAPIKey);
-           Project project = tr.initProjectById(providerProjectId);
+            Project project = tr.initProjectById(providerProjectId);
             logger.info("Sending SMS to " + mobileNumber + " ...");
             Message sent_msg = project.sendMessage(Util.options(
                     "content", messageToSend,
@@ -94,6 +99,11 @@ public class TelerivetMessageProvider extends SMSProvider {
                     "status-url", statusURL));
             message.setDeliveryStatus(TelerivetStatus.smsStatus(sent_msg.getStatus()).getValue());
             message.setExternalId(sent_msg.getId());
+
+            logger.info("Publishing internal id {} and external id {} to the zeebe workflow:",message.getInternalId(),message.getExternalId());
+
+            publishZeebeVariable(message);
+
             logger.info(sent_msg.getId());
             logger.info("TelerivetMessageProvider.sendMessage():" + TelerivetStatus.smsStatus(sent_msg.getStatus()));
 
@@ -104,12 +114,13 @@ public class TelerivetMessageProvider extends SMSProvider {
         } catch (IOException e) {
             logger.error("ApiException while sending message to :" + message.getMobileNumber() + " with reason " + e.getMessage());
             message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
+            message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
             message.setDeliveryErrorMessage(e.getMessage());
         }
     }
 
     @Override
-    public void updateStatusByMessageId(SMSBridge bridge, String externalId) throws MessageGatewayException {
+    public void updateStatusByMessageId(SMSBridge bridge, String externalId,String orchestrator) throws MessageGatewayException {
         Message msg = null;
         try {
             logger.info("Fetching message status by id");
@@ -131,11 +142,43 @@ public class TelerivetMessageProvider extends SMSProvider {
             msg = project.getMessageById(externalId);
             message.setDeliveryStatus(TelerivetStatus.smsStatus(msg.getStatus()).getValue());
             message.setDeliveryErrorMessage(msg.getErrorMessage());
-            this.smsOutboundMessageRepository.save(message) ;
+            if(orchestrator == null){
+                this.smsOutboundMessageRepository.save(message) ;
+            }else{
+                if(message.getDeliveryStatus() == 300 || message.getDeliveryStatus() == 400) {
+                    publishZeebeVariable(message);
+                }
+            }
             logger.debug("Value updated");
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void publishZeebeVariable(SMSMessage message){
+        logger.info("---------------- Publishing zeebe variable ----------------");
+        Map<String,Object> map=new HashMap<String,Object>();
+        map.put(MESSAGE_EXTERNAL_ID,message.getExternalId());
+        map.put(MESSAGE_INTERNAL_ID,message.getInternalId());
+        map.put(TENANT_ID,message.getTenantId());
+        map.put(BRIDGE_ID,message.getBridgeId());
+        map.put(DELIVERY_STATUS_CODE,message.getDeliveryStatus());
+
+        map.put(TRANSACTION_ID,message.getInternalId());
+        if (message.getDeliveryStatus() == 300) {
+            map.put(MESSAGE_DELIVERY_STATUS, true);
+        }
+        if (message.getDeliveryStatus() == 400) {
+            map.put(DELIVERY_ERROR_MESSAGE,message.getDeliveryErrorMessage());
+            map.put(MESSAGE_DELIVERY_STATUS, false);
+        }
+        zeebeClient.newSetVariablesCommand(message.getInternalId())
+                .variables(map)
+                .send()
+                .join();
+
+        logger.info("----------------Zeebe variable published----------------");
     }
 }

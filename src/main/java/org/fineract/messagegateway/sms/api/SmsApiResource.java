@@ -18,11 +18,6 @@
  */
 package org.fineract.messagegateway.sms.api;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import com.google.gson.JsonObject;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
@@ -31,7 +26,6 @@ import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.exception.ProviderNotDefinedException;
 import org.fineract.messagegateway.sms.exception.SMSBridgeNotFoundException;
 import org.fineract.messagegateway.sms.providers.SMSProvider;
-import org.fineract.messagegateway.sms.providers.impl.infobip.InfoBipApiResource;
 import org.fineract.messagegateway.sms.providers.impl.telerivet.TelerivetMessageProvider;
 import org.fineract.messagegateway.sms.repository.SMSBridgeRepository;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
@@ -42,11 +36,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/sms")
@@ -66,6 +65,8 @@ public class SmsApiResource {
 
 	@Autowired
 	private ApplicationContext applicationContext;
+	@Autowired
+	private SmsOutboundMessageRepository smsOutboundMessageRepository;
 
 	@Autowired
     public SmsApiResource(final SMSMessageService smsMessageService) {
@@ -121,5 +122,13 @@ public class SmsApiResource {
 		}
 		return new ResponseEntity<>(deliveryStatus, HttpStatus.OK);
 
+	}
+	@RequestMapping(value = "/details/{internalId}", method = RequestMethod.GET, consumes = {"application/json"}, produces = {"application/json"})
+	public ResponseEntity<SMSMessage> getMessageDetails(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
+																			@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey,
+																			@PathVariable Long internalId) throws MessageGatewayException {
+
+		SMSMessage smsMessages = this.smsOutboundMessageRepository.findByInternalId(internalId);
+		return new ResponseEntity<>(smsMessages, HttpStatus.OK);
 	}
 }

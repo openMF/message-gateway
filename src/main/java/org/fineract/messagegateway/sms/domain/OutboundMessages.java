@@ -62,14 +62,20 @@ public class OutboundMessages extends AbstractPersistableCustom<Long> {
 	@Column(name = "mobile_number", nullable = false)
 	private String mobileNumber;
 
-	@Column(name = "message", nullable = false)
+	@Column(name = "message", nullable = true)
 	private String message;
+
+	@Column(name = "email", nullable = true)
+	private String email;
 
 	@Column(name = "sms_bridge_id", nullable = false)
 	private Long bridgeId;
 
 	@Column(name = "response")
 	private String response;
+
+	@Column(name = "type", nullable = false)
+	private String type;
 
 	protected OutboundMessages() {
 		
@@ -201,6 +207,21 @@ public class OutboundMessages extends AbstractPersistableCustom<Long> {
 	public void setResponse(String response) {
 		this.response = response;
 	}
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 
 	@Override
     public String toString() {

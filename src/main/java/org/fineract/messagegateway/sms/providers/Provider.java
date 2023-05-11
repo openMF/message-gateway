@@ -29,7 +29,9 @@ public abstract class Provider {
 	
 	public abstract void sendMessage(final SMSBridge smsBridgeConfig, final OutboundMessages message)
 	        throws MessageGatewayException ;
-	
+	public abstract void sendEmail(final SMSBridge smsBridgeConfig, final OutboundMessages message)
+			throws MessageGatewayException ;
+
 	protected String encodeBase64(final SMSBridge smsBridgeConfig) {
 		String tenant = smsBridgeConfig.getTenantId().toString() ;
 		String username = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_ACCOUNT_ID) ;

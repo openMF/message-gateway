@@ -18,7 +18,7 @@
  */
 package org.fineract.messagegateway.sms.providers.impl.twilio;
 
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class TwilioApiResource {
 	
 	@RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/x-www-form-urlencoded"}, produces = {"application/x-www-form-urlencoded"})
     public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @ModelAttribute final TwilioReponseData payload) {
-    	SMSMessage message = this.smsOutboundMessageRepository.getById(messageId) ;
+    	OutboundMessages message = this.smsOutboundMessageRepository.getById(messageId) ;
     	if(message != null) {
     		logger.info("Status Callback received from Twilio for "+messageId+" with status:"+payload.getMessageStatus());
     		message.setDeliveryStatus(TwilioStatus.smsStatus(payload.getMessageStatus()).getValue());

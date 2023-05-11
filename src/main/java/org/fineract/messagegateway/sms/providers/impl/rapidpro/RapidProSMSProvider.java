@@ -27,9 +27,9 @@ import java.util.HashMap;
 import org.fineract.messagegateway.configuration.HostConfig;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
-import org.fineract.messagegateway.sms.providers.SMSProvider;
+import org.fineract.messagegateway.sms.providers.Provider;
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service(value = "RapidPro")
-public class RapidProSMSProvider extends SMSProvider {
+public class RapidProSMSProvider extends Provider {
 
     private static final Logger logger = LoggerFactory.getLogger(
             RapidProSMSProvider.class
@@ -62,7 +62,7 @@ public class RapidProSMSProvider extends SMSProvider {
     }
 
     @Override
-    public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message)
+    public void sendMessage(SMSBridge smsBridgeConfig, OutboundMessages message)
             throws MessageGatewayException {
         logger.info("Reached RapidPro Provider...");
         OkHttpClient okHttpClient = getRestClient(smsBridgeConfig);
@@ -103,7 +103,7 @@ public class RapidProSMSProvider extends SMSProvider {
     }
 
     @Override
-    public void publishZeebeVariable(SMSMessage message) {
+    public void publishZeebeVariable(OutboundMessages message) {
 
     }
 

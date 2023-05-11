@@ -24,9 +24,9 @@ import java.util.HashMap;
 import org.fineract.messagegateway.configuration.HostConfig;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
-import org.fineract.messagegateway.sms.providers.SMSProvider;
+import org.fineract.messagegateway.sms.providers.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ import infobip.api.model.sms.mt.send.SMSResponseDetails;
 import infobip.api.model.sms.mt.send.textual.SMSAdvancedTextualRequest;
 
 @Service(value = "InfoBip")
-public class InfoBipMessageProvider extends SMSProvider {
+public class InfoBipMessageProvider extends Provider {
 
 	private static final Logger logger = LoggerFactory.getLogger(InfoBipMessageProvider.class);
 
@@ -58,7 +58,7 @@ public class InfoBipMessageProvider extends SMSProvider {
 	}
 
 	@Override
-	public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
+	public void sendMessage(SMSBridge smsBridgeConfig, OutboundMessages message) throws MessageGatewayException {
 		String statusCallback = callBackUrl+message.getId() ;
 		//Based on message id, register call back. so that we get notification from Infobip about message status
 		SendMultipleTextualSmsAdvanced client = getRestClient(smsBridgeConfig) ;
@@ -91,7 +91,7 @@ public class InfoBipMessageProvider extends SMSProvider {
 	}
 
 	@Override
-	public void publishZeebeVariable(SMSMessage message) {
+	public void publishZeebeVariable(OutboundMessages message) {
 
 	}
 

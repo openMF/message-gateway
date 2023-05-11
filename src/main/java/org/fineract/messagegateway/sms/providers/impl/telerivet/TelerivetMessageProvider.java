@@ -26,9 +26,9 @@ import io.camunda.zeebe.client.ZeebeClient;
 import org.fineract.messagegateway.configuration.HostConfig;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
-import org.fineract.messagegateway.sms.providers.SMSProvider;
+import org.fineract.messagegateway.sms.providers.Provider;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ import static org.fineract.messagegateway.zeebe.ZeebeVariables.*;
 
 @Service(value = "telerivet")
 @Component
-public class TelerivetMessageProvider extends SMSProvider {
+public class TelerivetMessageProvider extends Provider {
 
     @Value("${providerSource.fromyml}")
     private String ymlCheck;
@@ -73,7 +73,7 @@ public class TelerivetMessageProvider extends SMSProvider {
     }
 
     @Override
-    public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
+    public void sendMessage(SMSBridge smsBridgeConfig, OutboundMessages message) throws MessageGatewayException {
         String providerAPIKey = null;
         String providerProjectId = null;
         if(ymlCheck.equals("enabled")){
@@ -136,8 +136,8 @@ public class TelerivetMessageProvider extends SMSProvider {
                 providerProjectId = bridge.getConfigValue(MessageGatewayConstants.PROVIDER_PROJECT_ID);
             }
 
-            SMSMessage message = this.smsOutboundMessageRepository.findByExternalId(externalId);
-            TelerivetAPI tr = new TelerivetAPI(providerAPIKey);
+            OutboundMessages message = this.smsOutboundMessageRepository.findByExternalId(externalId);
+            TelerivetAPI tr = new TelerivetAPI(providerAPIKey,"http://wiremock.sandbox.fynarfin.io");
             Project project = tr.initProjectById(providerProjectId);
             msg = project.getMessageById(externalId);
             message.setDeliveryStatus(TelerivetStatus.smsStatus(msg.getStatus()).getValue());
@@ -157,7 +157,7 @@ public class TelerivetMessageProvider extends SMSProvider {
     }
 
     @Override
-    public void publishZeebeVariable(SMSMessage message){
+    public void publishZeebeVariable(OutboundMessages message){
         logger.info("---------------- Publishing zeebe variable ----------------");
         Map<String,Object> map=new HashMap<String,Object>();
         map.put(MESSAGE_EXTERNAL_ID,message.getExternalId());

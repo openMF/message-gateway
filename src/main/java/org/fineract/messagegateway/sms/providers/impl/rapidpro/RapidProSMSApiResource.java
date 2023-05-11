@@ -18,7 +18,7 @@
  */
 package org.fineract.messagegateway.sms.providers.impl.rapidpro;
 
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class RapidProSMSApiResource {
   public ResponseEntity<Void> updateDeliveryStatus(
     @PathVariable("messageId") final Long messageId
   ) {
-    SMSMessage message = this.smsOutboundMessageRepository.findById(messageId).get();
+    OutboundMessages message = this.smsOutboundMessageRepository.findById(messageId).get();
     if (message != null) {
       logger.info(
         "Status Callback received from RapidProSMS for " +

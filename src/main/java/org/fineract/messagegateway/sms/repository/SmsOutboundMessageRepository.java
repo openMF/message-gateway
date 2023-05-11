@@ -20,7 +20,7 @@ package org.fineract.messagegateway.sms.repository;
 
 import java.util.List;
 
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +29,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SmsOutboundMessageRepository extends JpaRepository<SMSMessage, Long>, JpaSpecificationExecutor<SMSMessage> {
+public interface SmsOutboundMessageRepository extends JpaRepository<OutboundMessages, Long>, JpaSpecificationExecutor<OutboundMessages> {
 	
     /** 
      * find {@link SmsMessageStatusType} objects by delivery status
@@ -38,7 +38,7 @@ public interface SmsOutboundMessageRepository extends JpaRepository<SMSMessage, 
      * @param pageable -- Abstract interface for pagination information.
      * @return List of {@link SmsMessageStatusType} list
      **/
-    Page<SMSMessage> findByDeliveryStatus(Integer deliveryStatus, Pageable pageable);
+    Page<OutboundMessages> findByDeliveryStatus(Integer deliveryStatus, Pageable pageable);
 	
 	/** 
 	 * find {@link SmsMessageStatusType} object by externalId
@@ -46,7 +46,7 @@ public interface SmsOutboundMessageRepository extends JpaRepository<SMSMessage, 
 	 * @param externalId -- {@link SmsMessageStatusType} externalId
 	 * @return {@link SmsMessageStatusType}
 	 **/
-    SMSMessage findByExternalId(String externalId);
+    OutboundMessages findByExternalId(String externalId);
 
 	/** 
 	 * find {@link SmsMessageStatusType} objects with id in "idList" and mifosTenantIdentifier equal to "mifosTenantIdentifier"
@@ -55,7 +55,7 @@ public interface SmsOutboundMessageRepository extends JpaRepository<SMSMessage, 
 	 * @param mifosTenantIdentifier -- Mifos X tenant identifier e.g. demo
 	 * @return List of {@link SmsMessageStatusType} objects
 	 **/
-	List<SMSMessage> findByIdInAndTenantId(List<Long> idList, String mifosTenantIdentifier);
+	List<OutboundMessages> findByIdInAndTenantId(List<Long> idList, String mifosTenantIdentifier);
 
-	SMSMessage findByInternalId(Long internalId);
+	OutboundMessages findByInternalId(Long internalId);
 }

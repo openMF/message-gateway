@@ -30,7 +30,7 @@ import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 
 @Entity
 @Table(name = "m_outbound_messages")
-public class SMSMessage extends AbstractPersistableCustom<Long> {
+public class OutboundMessages extends AbstractPersistableCustom<Long> {
 
 	@com.fasterxml.jackson.annotation.JsonIgnore
 	@Column(name = "tenant_id", nullable = false)
@@ -71,14 +71,14 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 	@Column(name = "response")
 	private String response;
 
-	protected SMSMessage() {
+	protected OutboundMessages() {
 		
 	}
 
-	public SMSMessage(final String externalId, final Long internalId, final Long tenantId,
-			final Date submittedOnDate, final Date deliveredOnDate,
-			final SmsMessageStatusType deliveryStatus, final String deliveryErrorMessage, final String sourceAddress,
-			final String mobileNumber, final String message, final Long bridgeId) {
+	public OutboundMessages(final String externalId, final Long internalId, final Long tenantId,
+							final Date submittedOnDate, final Date deliveredOnDate,
+							final SmsMessageStatusType deliveryStatus, final String deliveryErrorMessage, final String sourceAddress,
+							final String mobileNumber, final String message, final Long bridgeId) {
 		this.externalId = externalId;
 		this.internalId = internalId;
 		this.tenantId = tenantId;
@@ -92,12 +92,12 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 		this.bridgeId = bridgeId;
 	}
 
-	public static SMSMessage getPendingMessages(final String externalId, final Long internalId,
-			final Long tenantId, final Date submittedOnDate,
-			final Date deliveredOnDate, final String deliveryErrorMessage, final String sourceAddress,
-			final String mobileNumber, final String message, final Long providerId) {
+	public static OutboundMessages getPendingMessages(final String externalId, final Long internalId,
+													  final Long tenantId, final Date submittedOnDate,
+													  final Date deliveredOnDate, final String deliveryErrorMessage, final String sourceAddress,
+													  final String mobileNumber, final String message, final Long providerId) {
 
-		return new SMSMessage(externalId, internalId, tenantId, submittedOnDate,
+		return new OutboundMessages(externalId, internalId, tenantId, submittedOnDate,
 				deliveredOnDate, SmsMessageStatusType.PENDING, deliveryErrorMessage, sourceAddress, mobileNumber,
 				message, providerId);
 	}
@@ -105,12 +105,12 @@ public class SMSMessage extends AbstractPersistableCustom<Long> {
 	/**
 	 * @return an instance of the SmsOutboundMessage class
 	 **/
-	public SMSMessage getInstance(final String externalId, final Long internalId, final Long tenantId,
-			final Date submittedOnDate, final Date deliveredOnDate,
-			final SmsMessageStatusType deliveryStatus, final String deliveryErrorMessage, final String sourceAddress,
-			final String mobileNumber, final String message, final Long providerId) {
+	public OutboundMessages getInstance(final String externalId, final Long internalId, final Long tenantId,
+										final Date submittedOnDate, final Date deliveredOnDate,
+										final SmsMessageStatusType deliveryStatus, final String deliveryErrorMessage, final String sourceAddress,
+										final String mobileNumber, final String message, final Long providerId) {
 
-		return new SMSMessage(externalId, internalId, tenantId, submittedOnDate,
+		return new OutboundMessages(externalId, internalId, tenantId, submittedOnDate,
 				deliveredOnDate, deliveryStatus, deliveryErrorMessage, sourceAddress, mobileNumber, message,
 				providerId);
 	}

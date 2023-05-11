@@ -22,12 +22,12 @@ import java.util.Base64;
 
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
 
-public abstract class SMSProvider {
+public abstract class Provider {
 	
-	public abstract void sendMessage(final SMSBridge smsBridgeConfig, final SMSMessage message)
+	public abstract void sendMessage(final SMSBridge smsBridgeConfig, final OutboundMessages message)
 	        throws MessageGatewayException ;
 	
 	protected String encodeBase64(final SMSBridge smsBridgeConfig) {
@@ -38,5 +38,5 @@ public abstract class SMSProvider {
         return Base64.getEncoder().encodeToString(userPass.getBytes());
     }
 	public abstract void updateStatusByMessageId(SMSBridge bridge, String externalId,String orchestrator) throws MessageGatewayException ;
-	public abstract void publishZeebeVariable(SMSMessage message);
+	public abstract void publishZeebeVariable(OutboundMessages message);
 }

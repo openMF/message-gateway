@@ -88,6 +88,10 @@ public class TwilioMessageProvider extends Provider {
         	message.setDeliveryErrorMessage(e.getMessage());
         }
     }
+    @Override
+    public void sendEmail(final SMSBridge smsBridgeConfig, final OutboundMessages message){
+
+    }
 
     @Override
     public void updateStatusByMessageId(SMSBridge bridge, String externalId, String orchestrator) throws MessageGatewayException {

@@ -84,7 +84,10 @@ public class InfoBipMessageProvider extends Provider {
 		message.setDeliveryStatus(InfoBipStatus.smsStatus(sentMessageInfo.getStatus().getGroupId()).getValue());
 		logger.debug("InfoBipMessageProvider.sendMessage():"+InfoBipStatus.smsStatus(sentMessageInfo.getStatus().getGroupId()).getValue());
 	}
+	@Override
+	public void sendEmail(SMSBridge smsBridgeConfig, OutboundMessages message){
 
+	}
 	@Override
 	public void updateStatusByMessageId(SMSBridge bridge, String externalId, String orchestrator) throws MessageGatewayException {
 

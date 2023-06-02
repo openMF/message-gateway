@@ -18,7 +18,7 @@
  */
 package org.fineract.messagegateway.sms.providers.impl.infobip;
 
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class InfoBipApiResource {
 	
 	@RequestMapping(value = "/report/{messageId}", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<Void> updateDeliveryStatus(@PathVariable("messageId") final Long messageId, @RequestBody final SMSReportResponse payload) {
-    	SMSMessage message = this.smsOutboundMessageRepository.findById(messageId).get();
+    	OutboundMessages message = this.smsOutboundMessageRepository.findById(messageId).get();
     	if(message != null) {
     		SMSReport report = payload.getResults().get(0) ;
     		logger.debug("Status Callback received from InfoBip for "+messageId+" with status:"+report.getStatus());

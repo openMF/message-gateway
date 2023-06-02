@@ -3,13 +3,12 @@ package org.fineract.messagegateway.sms.util;
 import com.google.gson.Gson;
 import com.squareup.okhttp.*;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.service.SMSMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -50,7 +49,7 @@ public class CallbackEventListner implements ApplicationListener<CallbackEvent> 
     @Override
     public void onApplicationEvent(CallbackEvent event) {
         logger.info("From application event method in callback listener");
-        SMSMessage message = event.getMessage();
+        OutboundMessages message = event.getMessage();
         logger.info("Back to listener from event with message ="+ message);
         Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryCallbackStatus
                 (message.getExternalId());

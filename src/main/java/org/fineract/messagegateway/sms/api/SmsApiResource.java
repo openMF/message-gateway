@@ -18,14 +18,15 @@
  */
 package org.fineract.messagegateway.sms.api;
 
+
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.exception.ProviderNotDefinedException;
 import org.fineract.messagegateway.sms.exception.SMSBridgeNotFoundException;
-import org.fineract.messagegateway.sms.providers.SMSProvider;
+import org.fineract.messagegateway.sms.providers.Provider;
 import org.fineract.messagegateway.sms.providers.impl.telerivet.TelerivetMessageProvider;
 import org.fineract.messagegateway.sms.repository.SMSBridgeRepository;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
@@ -76,7 +77,7 @@ public class SmsApiResource {
     @RequestMapping(method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<Void> sendShortMessages(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
     		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
-    		@RequestBody final List<SMSMessage> payload) {
+    		@RequestBody final List<OutboundMessages> payload) {
 		logger.info("Payload "+ payload.get(0).getMessage());
     	this.smsMessageService.sendShortMessage(tenantId, appKey, payload);
        return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -85,7 +86,7 @@ public class SmsApiResource {
 	public ResponseEntity<Void> sendShortMessagesToProvider(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
 												  @RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey,
 															@RequestHeader(MessageGatewayConstants.X_ORCHESTRATOR) final String orchestrator,
-												  @RequestBody final List<SMSMessage> payload) {
+												  @RequestBody final List<OutboundMessages> payload) {
 		logger.info("Payload "+ payload.get(0).getMessage());
 		this.smsMessageService.sendShortMessageToProvider(tenantId, appKey, payload,orchestrator);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -101,13 +102,13 @@ public class SmsApiResource {
 				logger.info("Delivery status is still pending, fetching message status manually ");
 				SMSBridge bridge = smsBridgeRepository.findByIdAndTenantId(deliveryStatusData.getBridgeId(),
 						deliveryStatusData.getTenantId());
-				SMSProvider provider = null;
+				Provider provider = null;
 				try {
 					if (bridge == null) {
 						throw new SMSBridgeNotFoundException(deliveryStatusData.getBridgeId());
 					}
 					logger.info("Finding provider for fetching message status....{}", bridge.getProviderKey());
-					provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey());
+					provider = (Provider) this.applicationContext.getBean(bridge.getProviderKey());
 					if (provider == null)
 						throw new ProviderNotDefinedException();
 					provider.updateStatusByMessageId(bridge, deliveryStatusData.getExternalId(),orchestrator);
@@ -124,11 +125,11 @@ public class SmsApiResource {
 
 	}
 	@RequestMapping(value = "/details/{internalId}", method = RequestMethod.GET, consumes = {"application/json"}, produces = {"application/json"})
-	public ResponseEntity<SMSMessage> getMessageDetails(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
-																			@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey,
-																			@PathVariable Long internalId) throws MessageGatewayException {
+	public ResponseEntity<OutboundMessages> getMessageDetails(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
+															  @RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey,
+															  @PathVariable Long internalId) throws MessageGatewayException {
 
-		SMSMessage smsMessages = this.smsOutboundMessageRepository.findByInternalId(internalId);
+		OutboundMessages smsMessages = this.smsOutboundMessageRepository.findByInternalId(internalId);
 		return new ResponseEntity<>(smsMessages, HttpStatus.OK);
 	}
 }

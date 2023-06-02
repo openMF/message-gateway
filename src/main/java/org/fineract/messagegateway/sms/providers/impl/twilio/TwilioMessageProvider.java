@@ -25,8 +25,8 @@ import org.fineract.messagegateway.configuration.HostConfig;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
-import org.fineract.messagegateway.sms.providers.SMSProvider;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
+import org.fineract.messagegateway.sms.providers.Provider;
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.type.PhoneNumber;
 
 @Service(value="Twilio")
-public class TwilioMessageProvider extends SMSProvider {
+public class TwilioMessageProvider extends Provider {
 
     private static final Logger logger = LoggerFactory.getLogger(TwilioMessageProvider.class);
 
@@ -60,7 +60,7 @@ public class TwilioMessageProvider extends SMSProvider {
 
     
     @Override
-    public void sendMessage(final SMSBridge smsBridgeConfig, final SMSMessage message)
+    public void sendMessage(final SMSBridge smsBridgeConfig, final OutboundMessages message)
         throws MessageGatewayException {
     	//Based on message id, register call back. so that we get notification from Twilio about message status
     	String statusCallback = callBackUrl+message.getId() ;
@@ -95,7 +95,7 @@ public class TwilioMessageProvider extends SMSProvider {
     }
 
     @Override
-    public void publishZeebeVariable(SMSMessage message) {
+    public void publishZeebeVariable(OutboundMessages message) {
 
     }
 

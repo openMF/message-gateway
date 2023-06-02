@@ -33,7 +33,7 @@ import javax.sql.DataSource;
 
 import org.fineract.messagegateway.service.SecurityService;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.providers.SMSProviderFactory;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
@@ -78,7 +78,7 @@ public class SMSMessageService {
 
 	@PostConstruct
 	public void init() {
-		logger.debug("Intializing SMSMessage Service.....");
+		logger.debug("Intializing OutboundMessages Service.....");
 		executorService = Executors.newSingleThreadExecutor();
 		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor() ;
 		scheduledExecutorService.schedule(new BootupPendingMessagesTask(this.smsOutboundMessageRepository, this.smsProviderFactory) , 1, TimeUnit.MINUTES) ;
@@ -86,19 +86,19 @@ public class SMSMessageService {
 		//Shutdown scheduledExecutorService on application close event
 	}
 
-	public void sendShortMessage(final String tenantId, final String tenantAppKey, final Collection<SMSMessage> messages) {
+	public void sendShortMessage(final String tenantId, final String tenantAppKey, final Collection<OutboundMessages> messages) {
 		logger.debug("Request Received to send messages.....");
 		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
-		for(SMSMessage message: messages) {
+		for(OutboundMessages message: messages) {
 			message.setTenant(tenant.getId());
 		}
 		this.smsOutboundMessageRepository.saveAll(messages) ;
 		this.executorService.execute(new MessageTask(tenant, this.smsOutboundMessageRepository, this.smsProviderFactory, messages));
 	}
-	public void sendShortMessageToProvider(final String tenantId, final String tenantAppKey, final Collection<SMSMessage> messages,final String orchestrator) {
+	public void sendShortMessageToProvider(final String tenantId, final String tenantAppKey, final Collection<OutboundMessages> messages, final String orchestrator) {
 		logger.debug("Request Received to send messages.....");
 		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
-		for(SMSMessage message: messages) {
+		for(OutboundMessages message: messages) {
 			message.setTenant(tenant.getId());
 		}
 		this.executorService.execute(new MessageTask(tenant, this.smsOutboundMessageRepository, this.smsProviderFactory, messages,orchestrator));
@@ -151,14 +151,14 @@ public class SMSMessageService {
 
 	class MessageTask implements Runnable {
 
-		final Collection<SMSMessage> messages ;
+		final Collection<OutboundMessages> messages ;
 		final SmsOutboundMessageRepository smsOutboundMessageRepository ;
 		final SMSProviderFactory smsProviderFactory ;
 		final Tenant tenant ;
 		final String orchestrator;
 		public MessageTask(final Tenant tenant, final SmsOutboundMessageRepository smsOutboundMessageRepository,
 						   final SMSProviderFactory smsProviderFactory,
-						   final Collection<SMSMessage> messages) {
+						   final Collection<OutboundMessages> messages) {
 			this.tenant = tenant ;
 			this.messages = messages ;
 			this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
@@ -167,7 +167,7 @@ public class SMSMessageService {
 		}
 		public MessageTask(final Tenant tenant, final SmsOutboundMessageRepository smsOutboundMessageRepository,
 						   final SMSProviderFactory smsProviderFactory,
-						   final Collection<SMSMessage> messages, final String orchestrator) {
+						   final Collection<OutboundMessages> messages, final String orchestrator) {
 			this.tenant = tenant ;
 			this.messages = messages ;
 			this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
@@ -202,7 +202,7 @@ public class SMSMessageService {
 			do {
 				PageRequest pageRequest = PageRequest.of(page, initialSize);
 				logger.info("Reading Pending Messages on bootup.....");
-				Page<SMSMessage> messages = this.smsOutboundMessageRepository.findByDeliveryStatus(SmsMessageStatusType.PENDING.getValue(), pageRequest) ;
+				Page<OutboundMessages> messages = this.smsOutboundMessageRepository.findByDeliveryStatus(SmsMessageStatusType.PENDING.getValue(), pageRequest) ;
 				logger.info("Pending Messages size.....{}", messages.getTotalElements());
 				page++;
 				totalPageSize = messages.getTotalPages();

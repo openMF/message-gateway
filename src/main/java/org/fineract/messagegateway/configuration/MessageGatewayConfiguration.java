@@ -21,7 +21,7 @@ package org.fineract.messagegateway.configuration;
 import org.fineract.messagegateway.sms.domain.AbstractPersistableCustom;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.domain.SMSBridgeConfig;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.tenants.domain.Tenant;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -43,7 +43,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		AbstractPersistableCustom.class,
         SMSBridge.class,
         SMSBridgeConfig.class,
-        SMSMessage.class,
+        OutboundMessages.class,
         Tenant.class
 })
 @ComponentScan(basePackages = {

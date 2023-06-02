@@ -21,17 +21,17 @@ package org.fineract.messagegateway.sms.providers.impl.dummy;
 import java.util.Date;
 
 import org.fineract.messagegateway.exception.MessageGatewayException;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
-import org.fineract.messagegateway.sms.providers.SMSProvider;
+import org.fineract.messagegateway.sms.providers.Provider;
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.springframework.stereotype.Service;
 
 @Service(value="Dummy")
-public class DummySMSProvider extends SMSProvider{
+public class DummySMSProvider extends Provider {
 
 	@Override
-	public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
+	public void sendMessage(SMSBridge smsBridgeConfig, OutboundMessages message) throws MessageGatewayException {
 		if (message.getMessage().toUpperCase().contains("DELIVERED")) {
 			message.setDeliveryStatus(SmsMessageStatusType.DELIVERED.getValue());
 		} else if (message.getMessage().toUpperCase().contains("FAILED")) {
@@ -53,7 +53,7 @@ public class DummySMSProvider extends SMSProvider{
 	}
 
 	@Override
-	public void publishZeebeVariable(SMSMessage message) {
+	public void publishZeebeVariable(OutboundMessages message) {
 
 	}
 }

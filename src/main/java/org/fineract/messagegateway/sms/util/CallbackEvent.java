@@ -1,6 +1,6 @@
 package org.fineract.messagegateway.sms.util;
 
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ public class CallbackEvent extends ApplicationEvent {
     @Autowired
     private SmsOutboundMessageRepository smsOutboundMessageRepository ;
     private String messageId;
-    private SMSMessage message;
+    private OutboundMessages message;
 
 
 
@@ -24,7 +24,7 @@ public class CallbackEvent extends ApplicationEvent {
         this.smsOutboundMessageRepository = smsOutboundMessageRepository;
         this.messageId = messageId;
     }
-    public SMSMessage getMessage() {
+    public OutboundMessages getMessage() {
         logger.info("Called get message from callback event listener");
         logger.info("Message id is:" + messageId);
         message = this.smsOutboundMessageRepository.findByExternalId(messageId);

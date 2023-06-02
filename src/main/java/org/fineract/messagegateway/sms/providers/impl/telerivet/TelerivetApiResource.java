@@ -20,7 +20,7 @@
 package org.fineract.messagegateway.sms.providers.impl.telerivet;
 
 import io.camunda.zeebe.client.ZeebeClient;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.repository.SmsOutboundMessageRepository;
 import org.fineract.messagegateway.sms.util.CallbackEvent;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public class TelerivetApiResource implements ApplicationEventPublisherAware {
 
     @RequestMapping(value = "/report", method = RequestMethod.POST, consumes ={"application/x-www-form-urlencoded"}, produces = {"application/x-www-form-urlencoded"})
     public ResponseEntity<Void> updateDeliveryStatus(@ModelAttribute final TelerivetResponseData report) {
-        SMSMessage message = this.smsOutboundMessageRepository.findByExternalId(report.getId());
+        OutboundMessages message = this.smsOutboundMessageRepository.findByExternalId(report.getId());
         if(message != null) {
             logger.debug("Status Callback received from Telerivet for "+report.getId() +" with status:" + report.getStatus());
             message.setDeliveryStatus(TelerivetStatus.smsStatus(report.getStatus()).getValue());
@@ -80,7 +80,7 @@ public class TelerivetApiResource implements ApplicationEventPublisherAware {
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-    public void publishZeebeVariable(SMSMessage message){
+    public void publishZeebeVariable(OutboundMessages message){
         logger.info("---------------- Publishing zeebe variable ----------------");
         Map<String,Object> map=new HashMap<String,Object>();
         map.put(DELIVERY_STATUS_CODE,message.getDeliveryStatus());

@@ -12,7 +12,7 @@ import org.apache.camel.support.DefaultExchange;
 import org.fineract.messagegateway.provider.config.ProviderConfig;
 import org.fineract.messagegateway.sms.api.SmsApiResource;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,10 +83,10 @@ public class ZeebeWorkers {
                     String mobile = exchange.getProperty(MOBILE_NUMBER).toString();
                     Long internalId = Long.parseLong(exchange.getProperty(INTERNAL_ID).toString());
                     Long providerId = providerConfig.getProviderConfig();
-                    SMSMessage smsMessage = new SMSMessage(null,internalId,null,null,null, SmsMessageStatusType.PENDING,null,null,mobile,exchange.getProperty(DELIVERY_MESSAGE).toString(),providerId);
+                    OutboundMessages outboundMessages = new OutboundMessages(null,internalId,null,null,null, SmsMessageStatusType.PENDING,null,null,mobile,exchange.getProperty(DELIVERY_MESSAGE).toString(),providerId);
 
-                    List<SMSMessage> payload = new ArrayList<SMSMessage>();
-                    payload.add(smsMessage);
+                    List<OutboundMessages> payload = new ArrayList<OutboundMessages>();
+                    payload.add(outboundMessages);
 
                     smsApiResource.sendShortMessagesToProvider(tenantIdValue,tenantAppKeyValue,"zeebe",payload);
 

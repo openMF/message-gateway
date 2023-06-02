@@ -30,10 +30,10 @@ import org.apache.http.client.utils.URIBuilder;
 import org.fineract.messagegateway.configuration.HostConfig;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
+import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
-import org.fineract.messagegateway.sms.domain.SMSMessage;
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
-import org.fineract.messagegateway.sms.providers.SMSProvider;
+import org.fineract.messagegateway.sms.providers.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 @Service(value="JasminSMS")
-public class JasminSMSProvider extends SMSProvider {
+public class JasminSMSProvider extends Provider {
 
     private static final Logger logger = LoggerFactory.getLogger(JasminSMSProvider.class);
 
@@ -63,7 +63,7 @@ public class JasminSMSProvider extends SMSProvider {
 
 
 	@Override
-	public void sendMessage(SMSBridge smsBridgeConfig, SMSMessage message) throws MessageGatewayException {
+	public void sendMessage(SMSBridge smsBridgeConfig, OutboundMessages message) throws MessageGatewayException {
 		logger.info("Reached Jasmin Provider...");
 		OkHttpClient okHttpClient = getRestClient(smsBridgeConfig);
 		String baseURL = smsBridgeConfig.getConfigValue(MessageGatewayConstants.PROVIDER_URL);
@@ -118,7 +118,7 @@ public class JasminSMSProvider extends SMSProvider {
 	}
 
 	@Override
-	public void publishZeebeVariable(SMSMessage message) {
+	public void publishZeebeVariable(OutboundMessages message) {
 
 	}
 

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.gson.JsonObject;
 import org.fineract.messagegateway.constants.MessageGatewayConstants;
 import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
@@ -79,10 +80,18 @@ public class SmsApiResource {
     	this.smsMessageService.sendShortMessage(tenantId, appKey, payload);
        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
-
+	@RequestMapping(value = "/send",method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> sendShortMessagesToProvider(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
+												  @RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey,
+															@RequestHeader(MessageGatewayConstants.X_ORCHESTRATOR) final String orchestrator,
+												  @RequestBody final List<SMSMessage> payload) {
+		logger.info("Payload "+ payload.get(0).getMessage());
+		this.smsMessageService.sendShortMessageToProvider(tenantId, appKey, payload,orchestrator);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
     @RequestMapping(value = "/report", method = RequestMethod.POST, consumes = {"application/json"}, produces = {"application/json"})
     public ResponseEntity<Collection<DeliveryStatusData>> getDeliveryStatus(@RequestHeader(MessageGatewayConstants.TENANT_IDENTIFIER_HEADER) final String tenantId,
-    		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey, 
+    		@RequestHeader(MessageGatewayConstants.TENANT_APPKEY_HEADER) final String appKey,@RequestHeader(MessageGatewayConstants.X_ORCHESTRATOR) final String orchestrator,
     		@RequestBody final Collection<Long> internalIds) throws MessageGatewayException {
     	Collection<DeliveryStatusData> deliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey, internalIds) ;
 		logger.info("From SMS API Resource, successfully fetched the message status");
@@ -100,7 +109,7 @@ public class SmsApiResource {
 					provider = (SMSProvider) this.applicationContext.getBean(bridge.getProviderKey());
 					if (provider == null)
 						throw new ProviderNotDefinedException();
-					provider.updateStatusByMessageId(bridge, deliveryStatusData.getExternalId());
+					provider.updateStatusByMessageId(bridge, deliveryStatusData.getExternalId(),orchestrator);
 					Collection<Long> id = new ArrayList<Long>();
 					id.add(Long.valueOf(deliveryStatusData.getId()));
 					Collection<DeliveryStatusData> messageDeliveryStatus = this.smsMessageService.getDeliveryStatus(tenantId, appKey, id);

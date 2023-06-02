@@ -35,4 +35,5 @@ public interface MessageGatewayConstants {
 
 	String PROVIDER_API_KEY = "Provider_API_Key";
 	String PROVIDER_PROJECT_ID = "Provider_Project_Id";
+	String X_ORCHESTRATOR = "x-orchestrator";
 }

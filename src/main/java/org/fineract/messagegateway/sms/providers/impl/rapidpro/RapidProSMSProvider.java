@@ -96,7 +96,10 @@ public class RapidProSMSProvider extends Provider {
             throw new MessageGatewayException(e.getMessage());
         }
     }
+    @Override
+    public void sendEmail(SMSBridge smsBridgeConfig, OutboundMessages message){
 
+    }
     @Override
     public void updateStatusByMessageId(SMSBridge bridge, String externalId, String orchestrator) throws MessageGatewayException {
 

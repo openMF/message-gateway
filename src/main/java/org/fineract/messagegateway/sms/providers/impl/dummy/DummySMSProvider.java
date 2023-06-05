@@ -46,7 +46,10 @@ public class DummySMSProvider extends Provider {
 			message.setDeliveredOnDate(new Date());
 		}
 	}
+	@Override
+	public void sendEmail(SMSBridge smsBridgeConfig, OutboundMessages message){
 
+	}
 	@Override
 	public void updateStatusByMessageId(SMSBridge bridge, String externalId, String orchestrator) throws MessageGatewayException {
 

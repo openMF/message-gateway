@@ -35,7 +35,7 @@ repositories {
     mavenCentral()
     maven { url "https://repo.spring.io/libs-release" }
     maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
-    maven { url "https://fynarfin.jfrog.io/artifactory/fyn-libs-release-local"}
+    maven { url "https://jfrog.sandbox.fynarfin.io/artifactory/fyn-libs-snapshot'"}
 }
 
 //license {

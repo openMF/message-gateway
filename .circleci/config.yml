@@ -54,7 +54,6 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            IMAGE_TAG=$CIRCLE_TAG
             ./gradlew bootJar
             docker build -t openmf/message-gateway:latest .
 

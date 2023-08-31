@@ -47,10 +47,13 @@ repositories {
 //    exclude '**/keystore.jks'
 //}
 
+ext {
+    springBootVersion = '2.6.2'
+}
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:2.5.5")
-    implementation("org.springframework.boot:spring-boot-starter-actuator:2.5.2")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.5.2")
     implementation("org.flywaydb:flyway-core:6.4.0")
     implementation('org.apache.velocity:velocity:1.7')

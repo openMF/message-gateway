@@ -82,7 +82,6 @@ jobs:
             JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
             docker push openmf/$CIRCLE_PR_REPONAME:${JIRA_STORY}
             fi
-          command:
 
 workflows:
   version: 2

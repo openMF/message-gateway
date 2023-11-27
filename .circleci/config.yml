@@ -56,6 +56,13 @@ jobs:
           command: |
             ./gradlew bootJar
             docker build -t openmf/message-gateway:latest .
+            if [ "$CIRCLE_BRANCH" != "master" ]; then
+              PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
+              PR_TITLE=$(curl -sSL "https://api.github.com/repos/openmf/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
+              JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
+              if [ -z "$JIRA_STORY" ]; then echo "Invalid PR title" && exit 1; else echo "Ticket NO: $JIRA_STORY"; fi
+              docker image tag openmf/$CIRCLE_PR_REPONAME:latest openmf/$CIRCLE_PR_REPONAME:$JIRA_STORY
+            fi
 
       # Log in to DockerHub using environment variables
       - run:
@@ -65,7 +72,16 @@ jobs:
       # Push the Docker image to DockerHub
       - run:
           name: Push Docker image to DockerHub
-          command: docker push openmf/message-gateway:latest        
+          command: |
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+            docker push openmf/message-gateway:latest
+            fi
+            if [ "$CIRCLE_BRANCH" != "master" ]; then
+            PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
+            PR_TITLE=$(curl -sSL "https://api.github.com/repos/openmf/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
+            JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
+            docker push openmf/$CIRCLE_PR_REPONAME:${JIRA_STORY}
+            fi
 
 workflows:
   version: 2

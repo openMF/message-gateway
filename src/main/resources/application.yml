@@ -23,7 +23,7 @@ spring:
     driver-class-name: org.drizzle.jdbc.DrizzleDriver
 
   mail:
-    host: 0.0.0.0
+    host: smtp.greenmail
     port: 3025
     username: greenmail
     password: greenmail

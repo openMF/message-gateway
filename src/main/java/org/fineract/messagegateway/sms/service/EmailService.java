@@ -68,7 +68,7 @@ public class EmailService {
             requestBody = requestBody.replace("{error}",error);
             restTemplate.postForObject(callbackUrl, requestBody.replace("{to}",
                     emailRequest.getTo().toString()), String.class);
-            logger.info("Email sent to: " + emailRequest.getTo());
+            logger.info("Email failed to be sent because {}", error);
 
         }
 

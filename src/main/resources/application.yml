@@ -23,7 +23,7 @@ spring:
     driver-class-name: org.drizzle.jdbc.DrizzleDriver
 
   mail:
-    host: smtp.greenmail
+    host: ${MY_POD_IP:localhost}
     port: 3025
     username: greenmail
     password: greenmail
@@ -104,3 +104,4 @@ zeebe:
   worker:
     timer: "PT15S"
     retries: 3
+

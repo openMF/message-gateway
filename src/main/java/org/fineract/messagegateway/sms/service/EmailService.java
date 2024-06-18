@@ -5,12 +5,16 @@ import org.fineract.messagegateway.sms.data.EmailRequestDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Properties;
 
 
 @Service
@@ -43,6 +47,11 @@ public class EmailService {
         ((JavaMailSenderImpl) mailSender).setPort(smtpPort);
         ((JavaMailSenderImpl) mailSender).setUsername(smtpUsername);
         ((JavaMailSenderImpl) mailSender).setPassword(smtpPassword);
+        Properties mailProperties = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
+        mailProperties.put("mail.smtp.connectiontimeout", 5000);
+        mailProperties.put("mail.smtp.timeout", 5000);
+        mailProperties.put("mail.smtp.writetimeout", 5000);
+        ((JavaMailSenderImpl) mailSender).setJavaMailProperties(mailProperties);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(emailRequest.getTo().toArray(new String[0]));
@@ -73,8 +82,14 @@ public class EmailService {
         }
 
 
-    }
 
+    }
+    private ClientHttpRequestFactory createTimeoutRequestFactory() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);
+        factory.setReadTimeout(5000);
+        return factory;
+    }
 
 
     }

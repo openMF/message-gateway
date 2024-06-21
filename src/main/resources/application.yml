@@ -22,6 +22,18 @@ spring:
     password: ${MYSQL_PASSWORD:password}
     driver-class-name: org.drizzle.jdbc.DrizzleDriver
 
+  mail:
+    host: ${EMAIL_URL:localhost}
+    port: 3025
+    username: greenmail
+    password: greenmail
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
 # Status Callback configuration for Twilio. Port will be taken from server configuration
 hostconfig:
   host: localhost
@@ -92,3 +104,4 @@ zeebe:
   worker:
     timer: "PT15S"
     retries: 3
+

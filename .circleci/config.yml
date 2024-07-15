@@ -15,7 +15,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.14
+          version: 20.10.24
       - run:
           name: Build and Push Docker tag Image
           command: |
@@ -48,7 +48,7 @@ jobs:
       - checkout
       # Install Docker to build and push the image
       - setup_remote_docker:
-          version: 20.10.14
+          version: 20.10.24
 
       # Build the Docker image
       - run:

@@ -60,7 +60,7 @@ dependencies {
 
     implementation('com.squareup.retrofit:retrofit:1.6.1')
     implementation('com.twilio.sdk:twilio:7.1.0')
-    implementation('org.drizzle.jdbc:drizzle-jdbc:1.3')
+    implementation 'mysql:mysql-connector-java:8.0.20'
     implementation('com.infobip:infobip-api-java-client:2.0.0')
     implementation('com.telerivet:TelerivetAPIClient:1.7.0')
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.0'

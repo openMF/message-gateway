@@ -20,7 +20,7 @@ spring:
     url: jdbc:mysql:thin://operations-mysql:3306/messagegateway
     username: ${MYSQL_USERNAME:root}
     password: ${MYSQL_PASSWORD:password}
-    driver-class-name: org.drizzle.jdbc.DrizzleDriver
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 # Status Callback configuration for Twilio. Port will be taken from server configuration
 hostconfig:

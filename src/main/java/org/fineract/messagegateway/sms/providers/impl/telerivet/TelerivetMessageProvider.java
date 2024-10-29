@@ -43,7 +43,6 @@ import com.telerivet.*;
 import static org.fineract.messagegateway.zeebe.ZeebeVariables.*;
 
 @Service(value = "telerivet")
-@Component
 public class TelerivetMessageProvider extends Provider {
 
     @Value("${providerSource.fromyml}")

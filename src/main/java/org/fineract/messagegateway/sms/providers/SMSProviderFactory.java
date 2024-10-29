@@ -35,6 +35,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import static org.fineract.messagegateway.constants.MessageGatewayConstants.MESSAGE_TYPE_EMAIL;
+import static org.fineract.messagegateway.constants.MessageGatewayConstants.MESSAGE_TYPE_SMS;
+
 @Component
 public class SMSProviderFactory implements ApplicationContextAware {
 
@@ -98,7 +101,12 @@ public class SMSProviderFactory implements ApplicationContextAware {
 				provider = (Provider) this.applicationContext.getBean(bridge.getProviderKey()) ;
 				if (provider == null)
 					throw new ProviderNotDefinedException();
-				provider.sendMessage(bridge, message);
+				if(MESSAGE_TYPE_EMAIL.equals(message.getType())){
+					provider.sendEmail(bridge, message);
+				}else{
+					provider.sendMessage(bridge, message);
+				}
+
 			} catch (SMSBridgeNotFoundException | MessageGatewayException | ProviderNotDefinedException | BeansException e) {
 				logger.error(e.getMessage());
 				message.setDeliveryErrorMessage(e.getMessage());

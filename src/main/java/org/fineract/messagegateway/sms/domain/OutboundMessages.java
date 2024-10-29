@@ -66,7 +66,7 @@ public class OutboundMessages extends AbstractPersistableCustom<Long> {
 	private String message;
 
 	@Column(name = "email", nullable = true)
-	private String email;
+	private String emailAddress;
 
 	@Column(name = "sms_bridge_id", nullable = false)
 	private Long bridgeId;
@@ -208,11 +208,15 @@ public class OutboundMessages extends AbstractPersistableCustom<Long> {
 		this.response = response;
 	}
 	public String getEmail() {
-		return email;
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
 	}
 
 	public void setEmail(String email) {
-		this.email = email;
+		this.emailAddress = email;
 	}
 	public String getType() {
 		return type;

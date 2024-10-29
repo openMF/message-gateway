@@ -23,6 +23,10 @@ spring:
 
   flyway:
     locations: classpath:db/migration/{vendor}
+    url: jdbc:mysql://operations-mysql:3306/messagegateway
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:mysql}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 # Status Callback configuration for Twilio. Port will be taken from server configuration
 hostconfig:

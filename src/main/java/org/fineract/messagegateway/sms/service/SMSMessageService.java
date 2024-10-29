@@ -207,7 +207,7 @@ public class SMSMessageService {
 				page++;
 				totalPageSize = messages.getTotalPages();
 				this.smsProviderFactory.sendShortMessage(messages.getContent());
-//				this.smsOutboundMessageRepository.saveAll(messages);
+				this.smsOutboundMessageRepository.saveAll(messages);
 			}while (page < totalPageSize);
 			return totalPageSize;
 		}

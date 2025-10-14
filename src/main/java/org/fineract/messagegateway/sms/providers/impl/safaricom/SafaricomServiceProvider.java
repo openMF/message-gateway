@@ -91,7 +91,7 @@ public class SafaricomServiceProvider extends Provider {
         //headers.add(HttpHeaders.AUTHORIZATION,authorization);
         headers.setBearerAuth(getAuthToken(smsBridgeConfig));
 
-        HttpEntity<?> entity = new HttpEntity<Object>(request);
+        HttpEntity<?> entity = new HttpEntity<Object>(request, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(providerUrl, HttpMethod.POST, entity, new ParameterizedTypeReference<String>() {
 
@@ -139,7 +139,8 @@ public class SafaricomServiceProvider extends Provider {
 
         logger.info("Fetching Access TOKEN:  Fetching new token");
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        //headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setBasicAuth(authUserName, authPassword);
 
         URI uri = UriComponentsBuilder.fromHttpUrl(authApiUrl)
@@ -161,7 +162,7 @@ public class SafaricomServiceProvider extends Provider {
         OAuthTokenResponse token = responseEntity.getBody();
         statcTokenMap.put(TOKEN, token.getAccessToken());
         statcTokenMap.put(EXPIRES_AT, System.currentTimeMillis() + (token.getExpiresIn()*1000));
-
+        logger.info("Fetched Access TOKEN: {} Token Expires in {}s", statcTokenMap.get(TOKEN), (token.getExpiresIn()*1000));
         return (String) statcTokenMap.get(TOKEN);
     }
 

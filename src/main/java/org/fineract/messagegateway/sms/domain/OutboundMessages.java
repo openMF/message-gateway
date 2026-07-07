@@ -235,4 +235,8 @@ public class OutboundMessages extends AbstractPersistableCustom<Long> {
                 + deliveryErrorMessage + ", sourceAddress=" + sourceAddress + ", mobileNumber=" + mobileNumber
                 + ", message=" + message + "]";
     }
+
+	public Date getSubmittedOnDate() {
+		return submittedOnDate;
+	}
 }

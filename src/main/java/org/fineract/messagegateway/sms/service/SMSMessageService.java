@@ -32,6 +32,7 @@ import jakarta.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.fineract.messagegateway.service.SecurityService;
+import org.fineract.messagegateway.sms.dao.SmsOutboundMessageDao;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
 import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.providers.SMSProviderFactory;
@@ -46,6 +47,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SMSMessageService {
@@ -91,6 +93,9 @@ public class SMSMessageService {
 		Tenant tenant = this.securityService.authenticate(tenantId, tenantAppKey) ;
 		for(OutboundMessages message: messages) {
 			message.setTenant(tenant.getId());
+			if(message.getSubmittedOnDate() == null) {
+				message.setSubmittedOnDate(new Date());
+			}
 		}
 		this.smsOutboundMessageRepository.saveAll(messages) ;
 		this.executorService.execute(new MessageTask(tenant, this.smsOutboundMessageRepository, this.smsProviderFactory, messages));
@@ -194,6 +199,7 @@ public class SMSMessageService {
 		}
 
 		@Override
+		@Transactional
 		public Integer call() throws Exception {
 			logger.info("Sending Pending Messages on bootup.....");
 			Integer page = 0;

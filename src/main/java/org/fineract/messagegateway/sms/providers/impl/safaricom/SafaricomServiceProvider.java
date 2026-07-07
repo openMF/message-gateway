@@ -80,6 +80,7 @@ public class SafaricomServiceProvider extends Provider {
         if(StringUtils.isNotBlank(message.getEmail())){
             sendEmail(smsBridgeConfig, message);
         }
+        message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
     }
 
 
@@ -98,15 +99,20 @@ public class SafaricomServiceProvider extends Provider {
         });
         if (response != null) {
             // String smsResponse = responseOne.getBody();
-            if (!response.getStatusCode().equals(HttpStatus.CREATED)) {
+            logger.debug("sms response status code  : {} ", response.getStatusCode().value());
+            if (!(response.getStatusCode().equals(HttpStatus.CREATED) || response.getStatusCode().equals(HttpStatus.OK)
+            || response.getStatusCode().equals(HttpStatus.ACCEPTED))) {
                 logger.debug("{}", response.getStatusCode().value());
+                message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
                 throw new RuntimeException("Request Failed,  Status" + response.getStatusCode());
             }
             message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
             message.setDeliveredOnDate(new Date());
             message.setResponse(response.getBody().toString());
         }else {
+            message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
             throw new RuntimeException("Connection Failed : Response NULL");
+
         }
     }
 

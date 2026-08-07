@@ -49,13 +49,13 @@ public interface SmsOutboundMessageRepository extends JpaRepository<OutboundMess
     OutboundMessages findByExternalId(String externalId);
 
 	/** 
-	 * find {@link SmsMessageStatusType} objects with id in "idList" and mifosTenantIdentifier equal to "mifosTenantIdentifier"
-	 * 
+	 * find {@link SmsMessageStatusType} objects with id in "idList" and tenantId equal to "tenantId"
+	 *
 	 * @param idList -- {@link SmsMessageStatusType} id list
-	 * @param mifosTenantIdentifier -- Mifos X tenant identifier e.g. demo
+	 * @param tenantId -- id of the tenant the messages belong to
 	 * @return List of {@link SmsMessageStatusType} objects
 	 **/
-	List<OutboundMessages> findByIdInAndTenantId(List<Long> idList, String mifosTenantIdentifier);
+	List<OutboundMessages> findByIdInAndTenantId(List<Long> idList, Long tenantId);
 
 	OutboundMessages findByInternalId(Long internalId);
 }

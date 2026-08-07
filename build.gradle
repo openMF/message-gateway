@@ -1,18 +1,6 @@
-buildscript {
-    ext {
-        springBootVersion = '2.5.6'
-    }
-
-    repositories {
-        mavenCentral()
-    }
-
-    
-}
-
 plugins {
-    id 'org.springframework.boot' version '2.5.6'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '3.4.4'
+    id 'io.spring.dependency-management' version '1.1.6'
     id 'java'
     id 'idea'
     id 'eclipse'
@@ -22,7 +10,8 @@ plugins {
    // id 'org.cadixdev.licenser' version '0.6.1'
 }
 
-sourceCompatibility = '11'
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
 if (project.hasProperty('profile')
         && project.getProperty('profile') == 'deployable') {
@@ -33,9 +22,15 @@ if (project.hasProperty('profile')
 
 repositories {
     mavenCentral()
-    maven { url "https://repo.spring.io/libs-release" }
-    maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
-    maven { url "https://jfrog.sandbox.fynarfin.io/artifactory/fyn-libs-snapshot'"}
+    // paymenthub-ee-bom lives on the official Mifos JFrog. The old
+    // jfrog.sandbox.fynarfin.io entry is gone: the URL had a stray quote in it
+    // and the repository itself no longer exists.
+    maven {
+        url = uri('https://mifos.jfrog.io/artifactory/phee-gradle-local')
+    }
+    maven {
+        url = uri('https://mifos.jfrog.io/artifactory/mifosx-gradle-local')
+    }
 }
 
 //license {
@@ -47,45 +42,68 @@ repositories {
 //    exclude '**/keystore.jks'
 //}
 
-ext {
-    springBootVersion = '2.6.2'
-}
-
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web:2.5.5")
-    implementation("org.springframework.boot:spring-boot-starter-actuator:$springBootVersion")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.5.2")
-    implementation("org.flywaydb:flyway-core:6.4.0")
-    implementation('org.apache.velocity:velocity:1.7')
+    // Pins Spring Boot 3.4, Camel 4, Zeebe 8, Jakarta EE 10 and every other
+    // shared library version. Do NOT hardcode managed versions.
+    // This is a deployable application (leaf node), so use enforcedPlatform().
+    implementation enforcedPlatform('org.mifos:paymenthub-ee-bom:2.0.0-SNAPSHOT')
 
-    implementation('com.squareup.retrofit:retrofit:1.6.1')
-    implementation('com.twilio.sdk:twilio:7.1.0')
-    implementation 'mysql:mysql-connector-java:8.0.20'
-    implementation('com.infobip:infobip-api-java-client:2.0.0')
-    implementation('com.telerivet:TelerivetAPIClient:1.7.0')
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.0'
-    implementation 'org.json:json:20210307'
-    implementation 'org.springframework.kafka:spring-kafka:2.7.2'
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    implementation 'org.apache.camel.springboot:camel-jackson-starter:3.12.0'
-    implementation 'org.apache.camel:camel-endpointdsl:3.12.0'
-    implementation 'org.apache.camel:camel-jetty:3.12.0'
-    implementation 'org.apache.camel:camel-undertow:3.12.0'
-    implementation 'org.apache.camel:camel-http:3.12.0'
-    implementation 'io.camunda:zeebe-client-java:8.1.4'
-    implementation 'org.apache.camel.springboot:camel-spring-boot-starter:3.12.0'
-    implementation("com.google.code.gson:gson:") {
-        version {
-            strictly("2.8.9")
-        }
-    }
-    configurations.all {
-        resolutionStrategy {
-            force("com.google.code.gson:gson:2.8.9")
-        }
-    }
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+    implementation 'org.flywaydb:flyway-core'
+    // Flyway 10 (required by Spring Boot 3.4) moved per-database support out of
+    // flyway-core into its own module. The migrations in db/migration are MySQL.
+    implementation 'org.flywaydb:flyway-mysql'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'org.json:json'
+    // Three helper classes use StringUtils. It used to arrive transitively as
+    // commons-lang 2.x (last released 2011) via the velocity dependency, which
+    // nothing else uses. Declared directly as commons-lang3 instead.
+    implementation 'org.apache.commons:commons-lang3'
+    // gson and okhttp are imported directly by the code (gson in 8 files, okhttp
+    // in JasminSMSProvider and CallbackEventListner) but used to arrive only as
+    // transitives of the InfoBip SDK. Declared here so bumping or dropping an SMS
+    // vendor cannot break unrelated classes. okhttp keeps its resolved 2.3.0: the
+    // BOM does not manage it, and moving to okhttp3 is a source change.
+    implementation 'com.google.code.gson:gson'
+    implementation 'com.squareup.okhttp:okhttp:2.3.0'
+
+    implementation 'org.apache.camel.springboot:camel-spring-boot-starter'
+    implementation 'org.apache.camel.springboot:camel-jackson-starter'
+    implementation 'org.apache.camel:camel-endpointdsl'
+    implementation 'org.apache.camel:camel-jetty'
+    implementation 'org.apache.camel:camel-undertow'
+    implementation 'org.apache.camel:camel-http'
+    implementation 'io.camunda:zeebe-client-java'
+
+    // SMS provider SDKs: not managed by the BOM, so these keep explicit versions.
+    implementation 'com.twilio.sdk:twilio:7.1.0'
+    implementation 'com.infobip:infobip-api-java-client:2.0.0'
+    implementation 'com.telerivet:TelerivetAPIClient:1.7.0'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+// spring-boot-starter-test ships JUnit 5; without this Gradle defaults to the
+// JUnit 4 runner and silently skips every JUnit 5 test.
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Deterministic boot jar name so the Dockerfile can copy exactly one file
+// (avoids the *.jar glob picking up the plain -plain.jar when `build` runs).
+tasks.named('bootJar') {
+    archiveFileName = 'app.jar'
+}
+
 wrapper {
-    gradleVersion = '7.3'
+    gradleVersion = '8.10.2'
 }

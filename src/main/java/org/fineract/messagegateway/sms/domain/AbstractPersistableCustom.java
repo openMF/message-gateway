@@ -20,10 +20,10 @@ package org.fineract.messagegateway.sms.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.AbstractPersistable;
@@ -32,7 +32,11 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 public abstract class AbstractPersistableCustom<PK extends Serializable> implements Persistable<PK> {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	// IDENTITY, not AUTO: every table in db/migration declares its id as
+	// AUTO_INCREMENT. Hibernate 5 turned AUTO into that on MySQL, Hibernate 6
+	// turns it into a sequence table (m_tenants_seq, ...) that does not exist,
+	// so every insert failed with "table doesn't exist".
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected PK id;
 
 	/*

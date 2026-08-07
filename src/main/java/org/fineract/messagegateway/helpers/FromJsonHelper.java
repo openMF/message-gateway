@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.fineract.messagegateway.exception.UnsupportedParameterException;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;

@@ -75,7 +75,7 @@ public class OutboundMessages extends AbstractPersistableCustom<Long> {
 	private String response;
 
 	@Column(name = "type", nullable = false)
-	private String type;
+	private String type = "sms";
 
 	protected OutboundMessages() {
 		

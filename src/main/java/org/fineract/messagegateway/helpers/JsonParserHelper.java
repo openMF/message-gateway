@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.fineract.messagegateway.exception.PlatformApiDataValidationException;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;

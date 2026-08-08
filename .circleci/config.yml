@@ -1,99 +1,151 @@
 version: 2.1
+
+# Master CircleCI config template for PHEE Java components.
+# Distributed to all repos by java_version_config_updater.py.
+# Template variables substituted by the script:
+#   cimg/openjdk:21.0.6  - e.g. cimg/openjdk:21.0
+#   # ./gradlew checkstyleMain         - ./gradlew checkstyleMain (present or commented out)
+
 executors:
-  docker-executor:
+  java-executor:
+    # cimg/openjdk is built on cimg/base which includes Docker CLI.
+    # No separate Docker CLI install step needed.
+    # The executor JDK is only used to compile the JAR — the final Docker
+    # image base is set independently in each repo's Dockerfile.
     docker:
-      - image: circleci/openjdk:17-buster-node-browsers-legacy
-
-jobs:
-  build_and_push_tag_image:
-    executor: docker-executor
-    environment:
-      JVM_OPTS: -Xmx512m
-      TERM: dumb  
-      GITHUB_TOKEN: ${GITHUB_TOKEN}  # Add the GitHub token as an environment variable
-
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 20.10.24
-      - run:
-          name: Build and Push Docker tag Image
-          command: |
-            # Set environment variables
-            IMAGE_TAG=$CIRCLE_TAG
-
-            # Check if the Docker image with the same tag already exists in Docker Hub
-            if curl -s -f -u "$DOCKERHUB_USERNAME":"$DOCKERHUB_PASSWORD" "https://hub.docker.com/v2/repositories/openmf/message-gateway/tags/$IMAGE_TAG" > /dev/null; then
-              echo "Skipping the build and push as the tag $IMAGE_TAG already exists in Docker Hub."
-              exit 0
-            fi
-
-            # Build and tag the Docker image
-            ./gradlew bootJar
-            docker build -t "openmf/message-gateway:$IMAGE_TAG" .
-
-            # Push the Docker image to Docker Hub
-            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
-            docker push "openmf/message-gateway:$IMAGE_TAG"
-
-          # when: always  # The job will be executed even if there's no match for the tag filter
-  
-  build_and_push_latest_image:
-    executor: docker-executor
+      - image: cimg/openjdk:21.0.6
     environment:
       JVM_OPTS: -Xmx512m
       TERM: dumb
 
+commands:
+  common-setup:
     steps:
       - checkout
-      # Install Docker to build and push the image
       - setup_remote_docker:
           version: 20.10.24
-
-      # Build the Docker image
       - run:
-          name: Build Docker image
+          name: Set lowercase image name vars
+          # tr used for POSIX compatibility; Bash 4+ alternative: ${VAR,,}
           command: |
-            ./gradlew bootJar
-            docker build -t openmf/message-gateway:latest .
-            if [ "$CIRCLE_BRANCH" != "master" ]; then
-              PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
-              PR_TITLE=$(curl -sSL "https://api.github.com/repos/openmf/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
-              JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
-              if [ -z "$JIRA_STORY" ]; then echo "Invalid PR title" && exit 1; else echo "Ticket NO: $JIRA_STORY"; fi
-              docker image tag openmf/$CIRCLE_PR_REPONAME:latest openmf/$CIRCLE_PR_REPONAME:$JIRA_STORY
-            fi
-
-      # Log in to DockerHub using environment variables
+            echo "export DOCKER_ORG_LOWER=$(echo $CIRCLE_PROJECT_USERNAME | tr '[:upper:]' '[:lower:]')" >> $BASH_ENV
+            echo "export DOCKER_REPO_LOWER=$(echo $CIRCLE_PROJECT_REPONAME | tr '[:upper:]' '[:lower:]')" >> $BASH_ENV
       - run:
-          name: Login to DockerHub
-          command: echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-
-      # Push the Docker image to DockerHub
-      - run:
-          name: Push Docker image to DockerHub
+          name: Install Docker Buildx
           command: |
-            if [ "$CIRCLE_BRANCH" = "master" ]; then
-            docker push openmf/message-gateway:latest
+            BUILDX_VERSION="v0.14.1"
+            if docker buildx version 2>/dev/null | grep -q "$BUILDX_VERSION"; then
+              echo "Docker Buildx $BUILDX_VERSION already present"
+            else
+              mkdir -vp ~/.docker/cli-plugins/
+              curl --silent -L \
+                "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-amd64" \
+                -o ~/.docker/cli-plugins/docker-buildx
+              chmod a+x ~/.docker/cli-plugins/docker-buildx
+              docker buildx version
             fi
-            if [ "$CIRCLE_BRANCH" != "master" ]; then
-            PR_NUMBER=$(basename $CIRCLE_PULL_REQUEST)
-            PR_TITLE=$(curl -sSL "https://api.github.com/repos/openmf/$CIRCLE_PR_REPONAME/pulls/$PR_NUMBER" | jq -r '.title')
-            JIRA_STORY=$(echo $PR_TITLE | cut -d "[" -f2 | cut -d "]" -f1 | tr '[A-Z]' '[a-z]')
-            docker push openmf/$CIRCLE_PR_REPONAME:${JIRA_STORY}
-            fi
+            docker context create buildcontext 2>/dev/null || true
+            docker buildx create --name multiarch --driver docker-container --use buildcontext 2>/dev/null \
+              || docker buildx use multiarch
+            docker buildx inspect --bootstrap
+
+jobs:
+  build_and_push_tag_image:
+    executor: java-executor
+    steps:
+      - common-setup
+      - run:
+          name: Build application
+          command: ./gradlew bootJar
+      - run:
+          name: Build and push multi-arch image (linux/amd64 + linux/arm64)
+          command: |
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker buildx build \
+              --push \
+              --platform linux/amd64,linux/arm64 \
+              -t "$DOCKER_ORG_LOWER/$DOCKER_REPO_LOWER:$CIRCLE_TAG" \
+              .
+
+  build_and_push_branch_image:
+    executor: java-executor
+    steps:
+      - common-setup
+      - run:
+          name: Build application
+          command: |
+            # ./gradlew checkstyleMain
+            ./gradlew clean bootJar
+      - run:
+          name: Sanitize branch name and set commit tag
+          command: |
+            echo "export SANITIZED_BRANCH=$(echo $CIRCLE_BRANCH | sed 's/[^a-zA-Z0-9.-]/-/g' | tr '[:upper:]' '[:lower:]')" >> $BASH_ENV
+            echo "export SHORT_SHA=$(echo $CIRCLE_SHA1 | cut -c1-7)" >> $BASH_ENV
+      - run:
+          name: Build and push multi-arch image (linux/amd64 + linux/arm64)
+          command: |
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            # Two tags per build:
+            #   branch-latest  — mutable, always the most recent build on this branch
+            #   branch-SHA     — immutable, traceable to a specific commit
+            docker buildx build \
+              --push \
+              --platform linux/amd64,linux/arm64 \
+              -t "$DOCKER_ORG_LOWER/$DOCKER_REPO_LOWER:${SANITIZED_BRANCH}-latest" \
+              -t "$DOCKER_ORG_LOWER/$DOCKER_REPO_LOWER:${SANITIZED_BRANCH}-${SHORT_SHA}" \
+              .
+
+  build_and_push_latest_image:
+    executor: java-executor
+    steps:
+      - common-setup
+      - run:
+          name: Build application
+          command: |
+            # ./gradlew checkstyleMain
+            ./gradlew clean bootJar
+      - run:
+          name: Build and push multi-arch image (linux/amd64 + linux/arm64)
+          command: |
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker buildx build \
+              --push \
+              --platform linux/amd64,linux/arm64 \
+              -t "$DOCKER_ORG_LOWER/$DOCKER_REPO_LOWER:latest" \
+              .
 
 workflows:
   version: 2
-  build-and-push:
+  build-and-push-pipeline:
     jobs:
+      # Build tags matching vX.Y.Z format
       - build_and_push_tag_image:
           filters:
             tags:
-              only: /^v\d+\.\d+\.\d+$/  # Match tags in the format v1.2.3
+              only: /^v\d+\.\d+\.\d+$/
+            branches:
+              ignore: /.*/
           context:
-              - DOCKER
+            - DOCKER
+      # Build any branch commit (except config-propagator update branches)
+      - build_and_push_branch_image:
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              ignore: /^ci\/mt-.*/
+          context:
+            - DOCKER
+      # Build 'latest' only on main/master, after branch image succeeds
       - build_and_push_latest_image:
+          requires:
+            - build_and_push_branch_image
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only:
+                - main
+                - master
           context:
-              - DOCKER
-             
+            - DOCKER

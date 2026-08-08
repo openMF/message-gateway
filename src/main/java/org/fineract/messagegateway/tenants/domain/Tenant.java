@@ -18,9 +18,9 @@
  */
 package org.fineract.messagegateway.tenants.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 import org.fineract.messagegateway.sms.domain.AbstractPersistableCustom;
 

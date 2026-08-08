@@ -16,10 +16,13 @@ spring:
       ddl-auto: none
 
   datasource:
-    url: jdbc:mysql:thin://operations-mysql:3306/messagegateway
-    username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/messagegateway}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
+
+  flyway:
+    locations: classpath:db/migration/{vendor}
 
 # Status Callback configuration for Twilio. Port will be taken from server configuration
 hostconfig:

@@ -1,6 +1,12 @@
 # server configuration
 server:
   port: 9191
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+    key-store: ${SSL_KEYSTORE_PATH:classpath:keystore.jks}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:password}
+    key-store-type: ${SSL_KEYSTORE_TYPE:JKS}
+    key-alias: ${SSL_KEY_ALIAS:messagegateway}
 
 # endpoint configuration
 endpoints:

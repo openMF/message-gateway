@@ -23,6 +23,10 @@ spring:
 
   flyway:
     locations: classpath:db/migration/{vendor}
+    url: jdbc:mysql://operations-mysql:3306/messagegateway
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:mysql}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 # Status Callback configuration for Twilio. Port will be taken from server configuration
 hostconfig:
@@ -36,6 +40,12 @@ callbackconfig:
 
 application:
   version: 1.0.0
+
+# pending-retry-interval: how often to look for delivery_status 100. Examples: 30s, 1m, 5m.
+# pending-retry-wait: leave newer rows for immediate sending. A claimed row is not sent again until this age.
+messagegateway:
+  pending-retry-interval: 1m
+  pending-retry-wait: 2m
 
 management:
   endpoint:

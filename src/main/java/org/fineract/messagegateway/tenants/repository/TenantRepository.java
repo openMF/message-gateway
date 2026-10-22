@@ -24,10 +24,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface TenantRepository
 		extends JpaRepository<Tenant, Long>, JpaSpecificationExecutor<Tenant> {
-	
+
+	Optional<Tenant> findById(Long id);
+
 	Tenant findByTenantId(@Param("tenantId") final String tenantId) ;
 	
 	Tenant findByTenantIdAndTenantAppKey(@Param("tenantId") final String tenantId, @Param("tenantAppKey") final String tenantAppKey) ;

@@ -11,19 +11,25 @@ import org.fineract.messagegateway.tenants.repository.TenantRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,7 +48,15 @@ public class SafaricomServiceProvider extends Provider {
 
     @Autowired
     private TenantRepository tenantRepository;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = createRestTemplate();
+    private final MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+
+    private static RestTemplate createRestTemplate() {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(10_000);
+        requestFactory.setReadTimeout(60_000);
+        return new RestTemplate(requestFactory);
+    }
 
 
 
@@ -76,44 +90,72 @@ public class SafaricomServiceProvider extends Provider {
 
         connectAndSendToServer(smsBridgeConfig, message, request);
 
-        //move this from here
         if(StringUtils.isNotBlank(message.getEmail())){
-            sendEmail(smsBridgeConfig, message);
+            try {
+                sendEmail(smsBridgeConfig, message);
+            } catch (RuntimeException ex) {
+                logger.error("SMS {} was accepted by Safaricom. Follow-up email failed", message.getId(), ex);
+            }
         }
         message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
     }
 
 
     private void connectAndSendToServer(SMSBridge smsBridgeConfig, OutboundMessages message, Map<String, String> request) {
-
         String providerUrl = smsBridgeConfig.getConfigValue(PROVIDER_URL);
+        logger.info("Posting Safaricom {} for message {} to {}", request.get("type"), message.getId(), providerUrl);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        //headers.add(HttpHeaders.AUTHORIZATION,authorization);
         headers.setBearerAuth(getAuthToken(smsBridgeConfig));
 
-        HttpEntity<?> entity = new HttpEntity<Object>(request, headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(providerUrl, HttpMethod.POST, entity, new ParameterizedTypeReference<String>() {
-
-        });
-        if (response != null) {
-            // String smsResponse = responseOne.getBody();
-            logger.debug("sms response status code  : {} ", response.getStatusCode().value());
-            if (!(response.getStatusCode().equals(HttpStatus.CREATED) || response.getStatusCode().equals(HttpStatus.OK)
-            || response.getStatusCode().equals(HttpStatus.ACCEPTED))) {
-                logger.debug("{}", response.getStatusCode().value());
+        try {
+            restTemplate.execute(providerUrl, HttpMethod.POST, clientRequest -> {
+                clientRequest.getHeaders().putAll(headers);
+                jsonConverter.write(request, MediaType.APPLICATION_JSON, clientRequest);
+            }, clientResponse -> {
+                applyProviderResponse(message, clientResponse);
+                return null;
+            });
+        } catch (RuntimeException ex) {
+            if (!SmsMessageStatusType.SENT.getValue().equals(message.getDeliveryStatus())) {
                 message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
-                throw new RuntimeException("Request Failed,  Status" + response.getStatusCode());
+                if (message.getDeliveryErrorMessage() == null) {
+                    message.setDeliveryErrorMessage(ex.getMessage());
+                }
+                throw ex;
             }
+            logger.warn("Safaricom accepted message {} but closing the response failed", message.getId(), ex);
+        }
+    }
+
+    private void applyProviderResponse(OutboundMessages message, ClientHttpResponse clientResponse) throws IOException {
+        int status = clientResponse.getRawStatusCode();
+        String responseBody = readBody(clientResponse);
+        logger.info("Safaricom response for message {} status {} body {}", message.getId(), status, abbreviate(responseBody));
+        if (status == HttpStatus.OK.value() || status == HttpStatus.CREATED.value() || status == HttpStatus.ACCEPTED.value()) {
             message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
             message.setDeliveredOnDate(new Date());
-            message.setResponse(response.getBody().toString());
-        }else {
-            message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
-            throw new RuntimeException("Connection Failed : Response NULL");
-
+            message.setResponse(responseBody);
+            return;
         }
+        message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
+        message.setDeliveryErrorMessage("Request Failed, Status " + status);
+        throw new IllegalStateException("Request Failed, Status " + status);
+    }
+
+    private static String readBody(ClientHttpResponse clientResponse) throws IOException {
+        InputStream body = clientResponse.getBody();
+        if (body == null) {
+            return null;
+        }
+        return StreamUtils.copyToString(body, StandardCharsets.UTF_8);
+    }
+
+    private static String abbreviate(String value) {
+        if (value == null || value.length() <= 500) {
+            return value;
+        }
+        return value.substring(0, 500);
     }
 
     @Override
@@ -168,7 +210,7 @@ public class SafaricomServiceProvider extends Provider {
         OAuthTokenResponse token = responseEntity.getBody();
         statcTokenMap.put(TOKEN, token.getAccessToken());
         statcTokenMap.put(EXPIRES_AT, System.currentTimeMillis() + (token.getExpiresIn()*1000));
-        logger.info("Fetched Access TOKEN: {} Token Expires in {}s", statcTokenMap.get(TOKEN), (token.getExpiresIn()*1000));
+        logger.info("Fetched Access TOKEN. Token expires in {}s", token.getExpiresIn());
         return (String) statcTokenMap.get(TOKEN);
     }
 

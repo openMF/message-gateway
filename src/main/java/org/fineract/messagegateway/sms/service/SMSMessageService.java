@@ -20,19 +20,24 @@ package org.fineract.messagegateway.sms.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
-import java.util.concurrent.Callable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 
 import org.fineract.messagegateway.service.SecurityService;
-import org.fineract.messagegateway.sms.dao.SmsOutboundMessageDao;
 import org.fineract.messagegateway.sms.data.DeliveryStatusData;
 import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.providers.SMSProviderFactory;
@@ -42,12 +47,12 @@ import org.fineract.messagegateway.tenants.domain.Tenant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SMSMessageService {
@@ -66,16 +71,25 @@ public class SMSMessageService {
 
 	private final SecurityService securityService ;
 
+	private final Duration pendingRetryInterval ;
+
+	private final Duration pendingRetryWait ;
+
 
 	@Autowired
 	public SMSMessageService(final SmsOutboundMessageRepository smsOutboundMessageRepository,
 							 final SMSProviderFactory smsProviderFactory,
 							 final DataSource dataSource,
-							 final SecurityService securityService) {
+							 final SecurityService securityService,
+							 @Value("${messagegateway.pending-retry-interval:1m}") final Duration pendingRetryInterval,
+							 @Value("${messagegateway.pending-retry-wait:2m}") final Duration pendingRetryWait) {
 		this.smsOutboundMessageRepository = smsOutboundMessageRepository ;
 		this.smsProviderFactory = smsProviderFactory ;
 		this.jdbcTemplate = new JdbcTemplate(dataSource) ;
 		this.securityService = securityService ;
+		this.pendingRetryInterval = pendingRetryInterval ;
+		this.pendingRetryWait = pendingRetryWait == null || pendingRetryWait.isZero() || pendingRetryWait.isNegative()
+				? Duration.ofMinutes(2) : pendingRetryWait ;
 	}
 
 	@PostConstruct
@@ -83,9 +97,25 @@ public class SMSMessageService {
 		logger.debug("Intializing OutboundMessages Service.....");
 		executorService = Executors.newSingleThreadExecutor();
 		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor() ;
-		scheduledExecutorService.schedule(new BootupPendingMessagesTask(this.smsOutboundMessageRepository, this.smsProviderFactory) , 1, TimeUnit.MINUTES) ;
-		//When do I have to shutdown  scheduledExecutorService ? :-( as it is no use after triggering BootupPendingMessagesTask
-		//Shutdown scheduledExecutorService on application close event
+		Duration interval = pendingRetryInterval;
+		if (interval == null || interval.isZero() || interval.isNegative()) {
+			logger.warn("Pending retry interval {} is not positive. Using 1 minute.", interval);
+			interval = Duration.ofMinutes(1);
+		}
+		long intervalMillis = interval.toMillis();
+		logger.info("Scheduling pending message retry every {}. Messages newer than {} are left for immediate sending.", interval, this.pendingRetryWait);
+		scheduledExecutorService.scheduleWithFixedDelay(new BootupPendingMessagesTask(this.smsOutboundMessageRepository, this.smsProviderFactory),
+				intervalMillis, intervalMillis, TimeUnit.MILLISECONDS);
+	}
+
+	@PreDestroy
+	public void shutdownExecutors() {
+		if (scheduledExecutorService != null) {
+			scheduledExecutorService.shutdown();
+		}
+		if (executorService != null) {
+			executorService.shutdown();
+		}
 	}
 
 	public void sendShortMessage(final String tenantId, final String tenantAppKey, final Collection<OutboundMessages> messages) {
@@ -181,14 +211,69 @@ public class SMSMessageService {
 		}
 		@Override
 		public void run() {
-			this.smsProviderFactory.sendShortMessage(messages);
-			if(orchestrator == null) {
-				this.smsOutboundMessageRepository.saveAll(messages);
+			List<OutboundMessages> claimedMessages = new ArrayList<OutboundMessages>();
+			for (OutboundMessages message : this.messages) {
+				if (claimPendingMessage(message)) {
+					claimedMessages.add(message);
+				} else {
+					logger.info("Skipping outbound message {} because another worker already claimed it", message.getId());
+				}
+			}
+			if (claimedMessages.isEmpty()) {
+				return;
+			}
+			try {
+				this.smsProviderFactory.sendShortMessage(claimedMessages);
+			} catch (RuntimeException ex) {
+				logger.error("Sending messages failed", ex);
+				for (OutboundMessages message : claimedMessages) {
+					if (SmsMessageStatusType.PENDING.getValue().equals(message.getDeliveryStatus())) {
+						message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
+						message.setDeliveryErrorMessage(ex.getMessage());
+					}
+				}
+			}
+			logger.debug("Persisting delivery status. orchestrator={}", this.orchestrator);
+			try {
+				persistOutboundMessages(claimedMessages);
+			} catch (RuntimeException ex) {
+				logger.error("Could not persist delivery status", ex);
 			}
 		}
 	}
 
-	class BootupPendingMessagesTask implements Callable<Integer> {
+	private boolean claimPendingMessage(final OutboundMessages message) {
+		if (message.getId() == null) {
+			return true;
+		}
+		Date claimedAt = new Date();
+		Date staleBefore = new Date(claimedAt.getTime() - this.pendingRetryWait.toMillis());
+		int claimed = this.smsOutboundMessageRepository.claimPendingMessage(message.getId(), claimedAt,
+				SmsMessageStatusType.PENDING.getValue(), staleBefore);
+		if (claimed == 1) {
+			message.setClaimedAt(claimedAt);
+			return true;
+		}
+		return false;
+	}
+
+	private void persistOutboundMessages(final Collection<OutboundMessages> messages) {
+		try {
+			this.smsOutboundMessageRepository.saveAll(messages);
+		} catch (RuntimeException firstFailure) {
+			logger.error("Saving outbound messages failed. Retrying without the provider response body.", firstFailure);
+			for (OutboundMessages message : messages) {
+				message.setResponse(null);
+				String error = message.getDeliveryErrorMessage();
+				if (error != null && error.length() > 500) {
+					message.setDeliveryErrorMessage(error.substring(0, 500));
+				}
+			}
+			this.smsOutboundMessageRepository.saveAll(messages);
+		}
+	}
+
+	class BootupPendingMessagesTask implements Runnable {
 
 		final SmsOutboundMessageRepository smsOutboundMessageRepository ;
 		final SMSProviderFactory smsProviderFactory ;
@@ -199,23 +284,57 @@ public class SMSMessageService {
 		}
 
 		@Override
-		@Transactional
-		public Integer call() throws Exception {
-			logger.info("Sending Pending Messages on bootup.....");
-			Integer page = 0;
-			Integer initialSize = 200;
-			Integer totalPageSize = 0;
-			do {
-				PageRequest pageRequest = PageRequest.of(page, initialSize);
-				logger.info("Reading Pending Messages on bootup.....");
-				Page<OutboundMessages> messages = this.smsOutboundMessageRepository.findByDeliveryStatus(SmsMessageStatusType.PENDING.getValue(), pageRequest) ;
-				logger.info("Pending Messages size.....{}", messages.getTotalElements());
-				page++;
-				totalPageSize = messages.getTotalPages();
-				this.smsProviderFactory.sendShortMessage(messages.getContent());
-				this.smsOutboundMessageRepository.saveAll(messages);
-			}while (page < totalPageSize);
-			return totalPageSize;
+		public void run() {
+			logger.info("Sending Pending Messages.....");
+			int processed = 0;
+			Set<Long> attemptedIds = new HashSet<Long>();
+			try {
+				while (true) {
+					PageRequest pageRequest = PageRequest.of(0, 200);
+					Date createdBefore = new Date(System.currentTimeMillis() - pendingRetryWait.toMillis());
+					logger.info("Reading Pending Messages older than {}.....", createdBefore);
+					Page<OutboundMessages> messages = this.smsOutboundMessageRepository.findRetryablePendingMessages(SmsMessageStatusType.PENDING.getValue(), createdBefore, pageRequest);
+					logger.info("Pending Messages size.....{}", messages.getTotalElements());
+					if (!messages.hasContent()) {
+						break;
+					}
+					int alreadyAttempted = 0;
+					for (OutboundMessages message : messages.getContent()) {
+						Long id = message.getId();
+						if (id != null && !attemptedIds.add(id)) {
+							alreadyAttempted++;
+							continue;
+						}
+						if (!claimPendingMessage(message)) {
+							logger.info("Skipping outbound message {} because another worker already claimed it", id);
+							continue;
+						}
+						try {
+							this.smsProviderFactory.sendShortMessage(Collections.singletonList(message));
+						} catch (RuntimeException ex) {
+							logger.error("Retry failed for outbound message {}", id, ex);
+							if (SmsMessageStatusType.PENDING.getValue().equals(message.getDeliveryStatus())) {
+								message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
+								message.setDeliveryErrorMessage(ex.getMessage());
+							}
+						}
+						try {
+							persistOutboundMessages(Collections.singletonList(message));
+						} catch (RuntimeException ex) {
+							logger.error("Could not persist delivery status for outbound message {}", id, ex);
+						}
+						processed++;
+						logger.info("Retried outbound message {} with delivery status {}", id, message.getDeliveryStatus());
+					}
+					if (alreadyAttempted == messages.getNumberOfElements()) {
+						logger.error("Stopping pending retry. {} messages stayed pending after an attempt and could not be updated.", alreadyAttempted);
+						break;
+					}
+				}
+				logger.info("Finished pending message retry. Processed {}", processed);
+			} catch (RuntimeException ex) {
+				logger.error("Pending message retry stopped with an error. It will run again on the next interval.", ex);
+			}
 		}
 	}
 }

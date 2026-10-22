@@ -20,7 +20,6 @@ package org.fineract.messagegateway.sms.providers;
 
 import java.util.Collection;
 
-import org.fineract.messagegateway.exception.MessageGatewayException;
 import org.fineract.messagegateway.sms.domain.OutboundMessages;
 import org.fineract.messagegateway.sms.domain.SMSBridge;
 import org.fineract.messagegateway.sms.exception.ProviderNotDefinedException;
@@ -36,7 +35,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import static org.fineract.messagegateway.constants.MessageGatewayConstants.MESSAGE_TYPE_EMAIL;
-import static org.fineract.messagegateway.constants.MessageGatewayConstants.MESSAGE_TYPE_SMS;
 
 @Component
 public class SMSProviderFactory implements ApplicationContextAware {
@@ -80,8 +78,8 @@ public class SMSProviderFactory implements ApplicationContextAware {
 			if (provider == null) throw new ProviderNotDefinedException();
 			provider.sendMessage(bridge, message);
 			message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
-		} catch (SMSBridgeNotFoundException | MessageGatewayException | ProviderNotDefinedException | BeansException e) {
-			logger.error(e.getMessage());
+		} catch (Exception e) {
+			logger.error("Failed to send outbound message {}", message.getId(), e);
 			message.setDeliveryErrorMessage(e.getMessage());
 			message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
 		}
@@ -106,9 +104,11 @@ public class SMSProviderFactory implements ApplicationContextAware {
 				}else{
 					provider.sendMessage(bridge, message);
 				}
-
-			} catch (SMSBridgeNotFoundException | MessageGatewayException | ProviderNotDefinedException | BeansException e) {
-				logger.error(e.getMessage());
+				if (SmsMessageStatusType.PENDING.getValue().equals(message.getDeliveryStatus())) {
+					message.setDeliveryStatus(SmsMessageStatusType.SENT.getValue());
+				}
+			} catch (Exception e) {
+				logger.error("Failed to send outbound message {}", message.getId(), e);
 				message.setDeliveryErrorMessage(e.getMessage());
 				message.setDeliveryStatus(SmsMessageStatusType.FAILED.getValue());
 			}

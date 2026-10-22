@@ -20,11 +20,12 @@ package org.fineract.messagegateway.sms.domain;
 
 import java.util.Date;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.fineract.messagegateway.sms.util.SmsMessageStatusType;
 
@@ -76,6 +77,21 @@ public class OutboundMessages extends AbstractPersistableCustom<Long> {
 
 	@Column(name = "type", nullable = false)
 	private String type = "sms";
+
+	@Column(name = "created_on_utc")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOnUtc;
+
+	@Column(name = "claimed_at")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date claimedAt;
+
+	@PrePersist
+	public void markCreated() {
+		if (this.createdOnUtc == null) {
+			this.createdOnUtc = new Date();
+		}
+	}
 
 	protected OutboundMessages() {
 		
@@ -238,5 +254,21 @@ public class OutboundMessages extends AbstractPersistableCustom<Long> {
 
 	public Date getSubmittedOnDate() {
 		return submittedOnDate;
+	}
+
+	public Date getCreatedOnUtc() {
+		return createdOnUtc;
+	}
+
+	public void setCreatedOnUtc(Date createdOnUtc) {
+		this.createdOnUtc = createdOnUtc;
+	}
+
+	public Date getClaimedAt() {
+		return claimedAt;
+	}
+
+	public void setClaimedAt(Date claimedAt) {
+		this.claimedAt = claimedAt;
 	}
 }

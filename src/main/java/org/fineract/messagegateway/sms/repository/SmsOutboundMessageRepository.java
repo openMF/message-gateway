@@ -18,6 +18,7 @@
  */
 package org.fineract.messagegateway.sms.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.fineract.messagegateway.sms.domain.OutboundMessages;
@@ -26,7 +27,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface SmsOutboundMessageRepository extends JpaRepository<OutboundMessages, Long>, JpaSpecificationExecutor<OutboundMessages> {
@@ -39,6 +44,14 @@ public interface SmsOutboundMessageRepository extends JpaRepository<OutboundMess
      * @return List of {@link SmsMessageStatusType} list
      **/
     Page<OutboundMessages> findByDeliveryStatus(Integer deliveryStatus, Pageable pageable);
+
+	@Query("select m from OutboundMessages m where m.deliveryStatus = :status and (m.createdOnUtc is null or m.createdOnUtc < :createdBefore) order by m.id asc")
+	Page<OutboundMessages> findRetryablePendingMessages(@Param("status") Integer status, @Param("createdBefore") Date createdBefore, Pageable pageable);
+
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Transactional
+	@Query("update OutboundMessages m set m.claimedAt = :claimedAt where m.id = :id and m.deliveryStatus = :pendingStatus and (m.claimedAt is null or m.claimedAt < :staleBefore)")
+	int claimPendingMessage(@Param("id") Long id, @Param("claimedAt") Date claimedAt, @Param("pendingStatus") Integer pendingStatus, @Param("staleBefore") Date staleBefore);
 	
 	/** 
 	 * find {@link SmsMessageStatusType} object by externalId
